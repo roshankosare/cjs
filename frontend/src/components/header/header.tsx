@@ -20,7 +20,7 @@ const Links = [
 
 const Header = () => {
   return (
-    <div className="w-full h-[30]  px-2 sm:px-5 py-2 sm:py-5 flex flex-row justify-between items-center">
+    <div className=" shadow-sm w-full h-[30]  px-2 sm:px-5 py-2 sm:py-5 flex flex-row justify-between items-center">
       <div className="flex flex-row gap-x-8">
         <Logo size="lg" />
 
@@ -37,7 +37,7 @@ const Header = () => {
         </div>
       </div>
 
-      <div className="hidden sm:flex sm:flex-row self-end  ">
+      <div className=" sm:flex sm:flex-row self-end  ">
         <a
           href="/signin"
           className="mx-4 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-500 flex"
