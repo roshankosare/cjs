@@ -27,7 +27,7 @@ npm run dev
 ```sh
 # step 1
 
-cd CjsApiMsdotnet
+cd CjsApi
 
 # step 2
 # to run project with hot reload
@@ -46,7 +46,7 @@ git clone https://github.com/<your-username>/cjs.git
 cd cjs
 
 ### step 3 - create a new branch
-git checkout -b feature/issue-<issue-id>-short-description
+git git  feature/issue-<issue-id>-short-description
 
 ### example:
 ### git checkout -b feature/issue-12-add-pagination

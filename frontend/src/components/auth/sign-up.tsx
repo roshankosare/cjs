@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import axios, { AxiosError } from "axios";
+import { useAuth } from "@/auth/useAuth";
 
 type SignUpForm = {
   username: string;
@@ -20,15 +23,30 @@ const SignUp = () => {
     formState: { errors, isSubmitting },
   } = useForm<SignUpForm>();
 
-  const onSubmit = (data: SignUpForm) => {
-    console.log("SignUp Data:", data);
+  const [error, setError] = useState<string | null>(null);
+  const { refetchUser } = useAuth();
+  const onSubmit = async (data: SignUpForm) => {
+    try {
+      setError(null);
+      await axios.post("http://localhost:5046/api/auth/signup", data, {
+        withCredentials: true,
+      });
+      refetchUser();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error("Sign-up error:", error.message);
+        setError(
+          error.response?.data?.message || "An error occurred during sign-up."
+        );
+      }
+    }
   };
 
   return (
-    <Card className="w-[350px] max-h-[580px] rounded-2xl shadow-xl mt-5">
+    <Card className="w-87.5 max-h-145 rounded-2xl shadow-xl mt-5">
       <CardContent className="px-4 py-2 sm:px-6 sm:py-3">
         {/* Logo */}
-        <div className="w-[50px] h-[50px] rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
+        <div className="w-12.5 h-12.5 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
           <p className="font-bold text-white text-xl">{"</>"}</p>
         </div>
 
@@ -36,6 +54,12 @@ const SignUp = () => {
         <h2 className="text-center text-2xl font-semibold text-gray-500 mb-8">
           Create your account
         </h2>
+
+        {error && (
+          <p className="w-full px-2 py-2 text-xs bg-red-400 text-red-500 rounded-2 text-center">
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           {/* Username */}
@@ -114,7 +138,7 @@ const SignUp = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full text-md py-6 bg-gradient-to-r from-blue-400 to-indigo-500 hover:opacity-90 my-6"
+            className="w-full rounded-full text-md py-6 bg-linear-to-r from-blue-400 to-indigo-500 hover:opacity-90 my-6"
           >
             {isSubmitting ? "Creating account..." : "Sign up"}
           </Button>
