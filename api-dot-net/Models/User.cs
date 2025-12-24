@@ -14,5 +14,10 @@ namespace CjsApi.Models
         public string PasswordHash { get; set; } = null!;
 
         public Role Role { get; set; } = Role.USER;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation
+        public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
     }
 }

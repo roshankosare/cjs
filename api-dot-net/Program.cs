@@ -4,7 +4,8 @@ using CjsApi.Repositories;
 using CjsApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.EntityFrameworkCore;
+using CjsApi.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -59,6 +60,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Add Authorization Services
 builder.Services.AddAuthorization();
+
+
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+    )
+);
 
 
 // dependency Injection for Services and Repositories
