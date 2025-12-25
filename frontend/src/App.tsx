@@ -5,6 +5,7 @@ import SignInPage from "./pages/signin";
 import SignUpPage from "./pages/singup";
 import HomePage from "./pages/home";
 import { AuthProvider } from "./auth/AuthProvider";
+import SolutionPage from "./pages/solution-page";
 
 function App() {
   return (
@@ -17,6 +18,10 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/signin" element={<SignInPage />} />
               <Route path="/signup" element={<SignUpPage />} />
+              <Route
+                path={`/problems/:id/solution`}
+                element={<SolutionPage />}
+              />
             </Routes>
           </div>
         </AuthProvider>
