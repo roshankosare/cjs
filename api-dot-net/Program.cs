@@ -6,6 +6,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using CjsApi.Data;
+using CjsApi.Services.CodeExecution.Base;
+using CjsApi.Services.CodeExecution.Executors;
+using CjsApi.Services.CodeExecution.Factory;
+using CjsApi.Infrastructure.Docker;
+using CjsApi.Services.CodeExecution.Store;
+using CjsApi.Services.CodeExecution.Worker;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -79,8 +85,18 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepositoryImpl>();
 
+builder.Services.AddSingleton<CodeExecutorBase, JavaCodeExecutor>();
+builder.Services.AddSingleton<CodeExecutorBase, NodeCodeExecutor>();
+builder.Services.AddSingleton<CodeExecutorBase, CppCodeExecutor>();
+builder.Services.AddScoped<CodeExecutionService>();
+
+builder.Services.AddSingleton<ICodeExecutorFactory, CodeExecutorFactory>();
 
 
+builder.Services.AddSingleton<ExecutionJobStore>();
+
+builder.Services.AddSingleton<CodeExecutionWorker>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<CodeExecutionWorker>());
 
 
 var app = builder.Build();

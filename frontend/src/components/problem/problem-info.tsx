@@ -7,13 +7,13 @@ type Props = {
 
 const ProblemInfo: React.FC<Props> = ({ problem }) => {
   return (
-    <Card className="w-full sm:min-h-150 flex flex-col gap-y-4 px-4 sm:px-8 py-4">
+    <Card className="w-full min-h-full max-h-ufll flex flex-col gap-y-4 px-4 sm:px-8 py-4">
       <p className="font-bold text-xl sm:text-3xl">{problem.title}</p>
 
       <div className="flex flex-wrap gap-4">
         {problem.tags.map((t, i) => (
           <div
-            className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full"
+            className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-xs"
             key={i}
           >
             {t}

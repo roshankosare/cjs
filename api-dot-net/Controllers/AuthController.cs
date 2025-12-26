@@ -11,7 +11,7 @@ namespace CjsApi.Controllers
 {
 
 
-    [AllowAnonymous]
+  
     [ApiController]
     [Route("api/auth")]
     public class AuthController(AuthService authService, JwtTokenService jwtTokenService) : ControllerBase
@@ -19,6 +19,7 @@ namespace CjsApi.Controllers
         readonly AuthService _authService = authService;
         readonly JwtTokenService _jwtTokenService = jwtTokenService;
 
+  [AllowAnonymous]
         [HttpPost("signin")]
         public ActionResult<ApiResponseDto<string>> SignIn([FromBody] SignInRequestDto signInRequestDto)
         {
