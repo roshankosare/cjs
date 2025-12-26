@@ -126,7 +126,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated }) => {
       <div className="flex-1 overflow-hidden">
         <Editor
           height="100%"
-          language={language}
+          language={language === "node" ? "javascript" : language}
           value={code}
           onChange={(value) => setCode(value ?? "")}
           theme="vs-dark"
@@ -197,6 +197,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated }) => {
         <div className="p-2 overflow-y-auto h-full text-xs">
           {/* Runtime / Compilation Error */}
           {executionResult &&
+            executionResult.result &&
             executionResult.result.exitCode !== 0 &&
             showResult && (
               <p className="text-red-400 whitespace-pre-wrap">
@@ -204,8 +205,14 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated }) => {
               </p>
             )}
 
+          {executionResult && !executionResult.result && (
+            <p className="text-red-400 whitespace-pre-wrap">
+              "something went wrong"
+            </p>
+          )}
           {/* Test Case Results */}
           {executionResult &&
+            executionResult.result &&
             executionResult.result.exitCode === 0 &&
             executionResult.result.testCaseResults.length > 0 &&
             showResult && (

@@ -1,5 +1,10 @@
+using Docker.DotNet;
+using Docker.DotNet.Models;
 using CjsApi.Services.CodeExecution.Base;
 using CjsApi.Services.CodeExecution.Dto;
+using CjsApi.Infrastructure.Docker;
+using System.Text;
+
 
 namespace CjsApi.Services.CodeExecution.Executors
 {
@@ -10,18 +15,201 @@ namespace CjsApi.Services.CodeExecution.Executors
         public override string Language => "java";
 
         protected override async Task<CodeExecutionResult> ExecuteInDockerAsync(
-            string workDir,
-            CodeExecutionRequest request,
-            CancellationToken cancellationToken)
+        string _,
+        CodeExecutionRequest request,
+        CancellationToken cancellationToken)
         {
-            // docker run openjdk:21
-            // javac Main.java
-            // java Main
-            return new CodeExecutionResult
+            using var docker = DockerClientFactory.Create();
+
+            // Encode Java source safely (Base64 avoids shell injection & escaping issues)
+            var sourceB64 = Convert.ToBase64String(
+                Encoding.UTF8.GetBytes(request.SourceCode)
+            );
+
+            /* -------------------------------------------------
+             * Create secure sandbox container
+             * ------------------------------------------------- */
+            var container = await docker.Containers.CreateContainerAsync(
+                new CreateContainerParameters
+                {
+                    // Minimal Java runtime image
+                    Image = "eclipse-temurin:17-jdk-alpine",
+
+                    // Keep container alive for exec calls
+                    Cmd = new[] { "sh", "-c", "sleep infinity" },
+
+                    WorkingDir = "/workspace",
+
+                    Env = new[]
+                    {
+                    $"SOURCE_B64={sourceB64}"
+                    },
+
+                    HostConfig = new HostConfig
+                    {
+                        AutoRemove = true,
+                        NetworkMode = "none",
+                        ReadonlyRootfs = true,
+
+                        // RAM-only writable + executable workspace
+                        Tmpfs = new Dictionary<string, string>
+                        {
+                            ["/workspace"] = "rw,exec,size=64m"
+                        },
+
+                        CapDrop = new[] { "ALL" },
+                        PidsLimit = 64,
+                        Memory = 256 * 1024 * 1024,
+                        NanoCPUs = 1_000_000_000
+                    }
+                },
+                cancellationToken
+            );
+
+            await docker.Containers.StartContainerAsync(
+                container.ID,
+                new ContainerStartParameters(),
+                cancellationToken
+            );
+
+            try
             {
-                Output = "Hello from Java",
-                ExitCode = 0
-            };
+                /* -------------------------------------------------
+                 * STEP 1: Write Java source file
+                 * -------------------------------------------------
+                 * IMPORTANT:
+                 * - Java requires the filename to match the class name.
+                 * - We enforce "Main" as the entry class.
+                 */
+                var write = await Exec(
+                    docker,
+                    container.ID,
+                    new[]
+                    {
+                    "sh",
+                    "-c",
+                    "echo \"$SOURCE_B64\" | base64 -d > /workspace/Main.java"
+                    },
+                    cancellationToken
+                );
+
+                if (write.ExitCode != 0)
+                    return Fail(write);
+
+                /* -------------------------------------------------
+                 * STEP 2: Compile Java code (ONCE)
+                 * ------------------------------------------------- */
+                var compile = await Exec(
+                    docker,
+                    container.ID,
+                    new[]
+                    {
+                    "javac",
+                    "/workspace/Main.java"
+                    },
+                    cancellationToken
+                );
+
+                if (compile.ExitCode != 0)
+                    return Fail(compile);
+
+                /* -------------------------------------------------
+                 * STEP 3: Run for EACH test case
+                 * ------------------------------------------------- */
+                var testResults = new List<TestCaseResultDto>();
+
+                for (int i = 0; i < request.TestCases.Count; i++)
+                {
+                    var test = request.TestCases[i];
+
+                    var inputB64 = Convert.ToBase64String(
+                        Encoding.UTF8.GetBytes(test.Input)
+                    );
+
+                    var run = await Exec(
+                        docker,
+                        container.ID,
+                        new[]
+                        {
+                        "sh",
+                        "-c",
+                        $"echo \"{inputB64}\" | base64 -d | java -cp /workspace Main"
+                        },
+                        cancellationToken
+                    );
+
+                    var output = run.Output.Trim();
+                    var expected = test.ExpectedOutput.Trim();
+
+                    testResults.Add(new TestCaseResultDto
+                    {
+                        Index = i + 1,
+                        Input = test.Input,
+                        Output = output,
+                        Expected = expected,
+                        Passed = output == expected
+                    });
+                }
+
+                return new CodeExecutionResult
+                {
+                    ExitCode = 0,
+                    Output = $"{testResults.Count(t => t.Passed)} / {testResults.Count} test cases passed",
+                    TestCaseResults = testResults
+                };
+            }
+            finally
+            {
+                // Container is removed automatically due to AutoRemove=true
+                await docker.Containers.StopContainerAsync(
+                    container.ID,
+                    new ContainerStopParameters(),
+                    cancellationToken
+                );
+            }
+        }
+
+        private static CodeExecutionResult Fail((int ExitCode, string Output) r) =>
+            new() { ExitCode = r.ExitCode, Output = r.Output };
+
+        /// <summary>
+        /// Executes a command inside the container and captures stdout & stderr
+        /// </summary>
+        private static async Task<(int ExitCode, string Output)> Exec(
+            DockerClient docker,
+            string containerId,
+            string[] cmd,
+            CancellationToken ct)
+        {
+            var exec = await docker.Exec.ExecCreateContainerAsync(
+                containerId,
+                new ContainerExecCreateParameters
+                {
+                    Cmd = cmd,
+                    AttachStdout = true,
+                    AttachStderr = true
+                },
+                ct
+            );
+
+            using var stream = await docker.Exec.StartAndAttachContainerExecAsync(
+                exec.ID,
+                false,
+                ct
+            );
+
+            using var stdout = new MemoryStream();
+            using var stderr = new MemoryStream();
+
+            await stream.CopyOutputToAsync(Stream.Null, stdout, stderr, ct);
+
+            var inspect = await docker.Exec.InspectContainerExecAsync(exec.ID, ct);
+
+            return (
+                (int)inspect.ExitCode,
+                Encoding.UTF8.GetString(stdout.ToArray()) +
+                Encoding.UTF8.GetString(stderr.ToArray())
+            );
         }
     }
 

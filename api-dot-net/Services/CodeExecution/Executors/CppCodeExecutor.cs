@@ -160,6 +160,7 @@ public sealed class CppCodeExecutor : CodeExecutorBase
 
             return new CodeExecutionResult
             {
+                //ExitCode = testResults.All(t => t.Passed) ? 0 : 1,
                 ExitCode = 0,
                 Output = $"{testResults.Count(t => t.Passed)} / {testResults.Count} test cases passed",
                 TestCaseResults = testResults
