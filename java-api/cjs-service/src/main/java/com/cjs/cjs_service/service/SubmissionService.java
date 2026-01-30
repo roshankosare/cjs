@@ -54,7 +54,14 @@ public class SubmissionService {
             int timeMs,
             int memoryKb) {
 
-        repository.updateStatus(submissionId, status);
+        Submission submission = repository.findById(submissionId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid submission ID"));
+
+        submission.setStatus(status);
+        // submission.setTimeMs(timeMs);
+        // submission.setMemoryKb(memoryKb);
+
+        repository.save(submission);
         // extend later for time & memory
     }
 
@@ -74,11 +81,32 @@ public class SubmissionService {
                     ProblemSubmissionDetails dto =
                             new ProblemSubmissionDetails();
                     dto.setTitle(s.getProblem().getTitle());
-                    dto.setStatus(s.getStatus());
+                    dto.setStatus(s.getStatus().toString());
                     dto.setLanguage(s.getLanguage());
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<ProblemSubmissionDetails> getUserSubmissions(int userId) {
+      
+        return repository
+                .findByUserId(userId)
+                
+                .stream()
+                .sorted((a, b) ->
+                        b.getSubmittedAt().compareTo(a.getSubmittedAt()))
+                .map(s -> {
+                    ProblemSubmissionDetails dto =
+                            new ProblemSubmissionDetails();
+                    dto.setTitle(s.getProblem().getTitle());
+                    dto.setStatus(s.getStatus().toString());
+                    dto.setLanguage(s.getLanguage());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+
 }
 

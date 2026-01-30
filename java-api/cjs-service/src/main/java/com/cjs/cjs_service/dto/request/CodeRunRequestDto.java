@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class CodeRunRequestDto {
 
-    private String code;
+    private String sourceCode;
     private String language;
     private Integer problemId;
 }

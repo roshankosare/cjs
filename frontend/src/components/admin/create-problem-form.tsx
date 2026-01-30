@@ -1,9 +1,9 @@
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import axios, {  AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
-import { problemSchema, type ProblemFormData } from "./problem-schema";
+import { problemSchema, type ProblemFormInput } from "./problem-schema";
 import type { AdminProblem } from "@/types/problem";
 
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { TestCasesPanel } from "./test-case-panel";
 import { MarkdownEditor } from "../mark-down-editor";
 
+
 type Props = {
   problem?: AdminProblem;
 };
@@ -29,18 +30,19 @@ const API_BASE = "http://localhost:5046/api/problems";
 
 const CreateProblemForm: React.FC<Props> = ({ problem }) => {
   const [apiError, setApiError] = useState<string | null>(null);
+  // console.log("Edit problem:", problem);
 
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ProblemFormData>({
+    formState: { errors },
+  } = useForm<ProblemFormInput>({
     resolver: zodResolver(problemSchema),
     defaultValues: {
       difficulty: "EASY",
-      testCases: [{ input: "", output: "", isSample: false }],
+      testCases: [{ input: "", output: "", sample: false }],
     },
   });
 
@@ -48,6 +50,9 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
     control,
     name: "testCases",
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState<boolean | null>(null);
 
   /* -------------------- Populate form in edit mode -------------------- */
   useEffect(() => {
@@ -61,13 +66,16 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
       testCases: problem.testCases.map((tc) => ({
         input: tc.input,
         output: tc.output,
-        isSample: tc.isSample,
+        sample: tc.sample || false,
       })),
     });
   }, [problem, reset]);
 
   /* -------------------- Submit -------------------- */
-  const onSubmit = async (data: ProblemFormData) => {
+  const onSubmit = async (data: ProblemFormInput) => {
+    setIsSubmitting(true);
+    // console.log("Form data:", data);
+    setSuccess(null);
     setApiError(null);
 
     const payload = {
@@ -83,14 +91,25 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
 
     try {
       if (problem) {
-        await axios.put(`${API_BASE}/${problem.id}`, payload);
+        const res = await axios.put(`${API_BASE}/${problem.id}`, payload, {
+          withCredentials: true,
+        });
+
+        console.log(data);
+        console.log("Update response:", res.data);
+        setSuccess(true);
       } else {
-        await axios.post(API_BASE, payload);
+        const res = await axios.post(API_BASE, payload, {
+          withCredentials: true,
+        });
+
+        console.log("Create response:", res.data);
+        setSuccess(true);
         reset();
       }
     } catch (err) {
       if (err instanceof AxiosError) {
-        console.log(err.response?.data)
+        console.log(err.response?.data);
         const message =
           err.response?.data?.message ||
           err.response?.data?.title ||
@@ -98,17 +117,32 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
 
         setApiError(message);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   /* -------------------- Render -------------------- */
   return (
     <Card className="p-6 max-w-7xl mx-auto">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.log("FORM ERRORS:", errors);
+        })}
+        className="space-y-6"
+      >
         {/* Backend error banner */}
         {apiError && (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {apiError}
+          </div>
+        )}
+
+        {success === true && (
+          <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            {problem
+              ? "Problem updated successfully!"
+              : "Problem created successfully!"}
           </div>
         )}
 
@@ -189,7 +223,7 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
         </div>
 
         {/* Submit */}
-        <Button disabled={isSubmitting} className="w-full">
+        <Button disabled={isSubmitting} type="submit" className="w-full">
           {isSubmitting && <Spinner />}
           {problem ? "Update Problem" : "Create Problem"}
         </Button>

@@ -77,7 +77,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
       const res = await axios.post(
         "http://localhost:5046/api/code/run",
         { language, sourceCode: code, problemId },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       pollStatus(res.data.data, false);
@@ -102,7 +102,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
       const res = await axios.post(
         "http://localhost:5046/api/code/submit",
         { language, sourceCode: code, problemId },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       pollStatus(res.data.data, true);
@@ -120,13 +120,12 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
       try {
         const res = await axios.get(
           `http://localhost:5046/api/code/status/${jobId}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
-        if (
-          res.data.data.status === "Completed" ||
-          res.data.data.status === "Failed"
-        ) {
+        const status = res.data.data.status?.toUpperCase();
+
+        if (status === "COMPLETED" || status === "FAILED") {
           clearInterval(pollingRef.current!);
 
           setExecutionResult(res.data.data);
@@ -168,7 +167,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
           code,
           result: executionResult.result,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       setAiFeedback(res.data.feedback);
@@ -267,7 +266,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
         </div>
       ) : (
         <div className="text-xs px-2 py-2 bg-gray-200 flex gap-x-1">
-          You need to 
+          You need to
           <Link to="/signin" className="text-blue-600">
             Login
           </Link>{" "}

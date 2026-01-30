@@ -85,6 +85,7 @@ class McqService {
       method: "POST",
       body: JSON.stringify(dto),
     });
+    console.log("Start Quiz Response:", response);
     return response.data;
   }
 

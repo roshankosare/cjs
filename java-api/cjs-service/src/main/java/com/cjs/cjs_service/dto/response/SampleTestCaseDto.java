@@ -9,6 +9,7 @@ public class SampleTestCaseDto {
 
     private String input = "";
     private String output = "";
+    private boolean sample = false;
 
     // getters and setters
 }

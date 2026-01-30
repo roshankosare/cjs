@@ -1,21 +1,25 @@
 package com.cjs.mcq_service.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiResponseDto<T> {
-    private Boolean success;
+
     private String message;
     private T data;
-    
-    public ApiResponseDto(Boolean success, String message) {
-        this.success = success;
-        this.message = message;
+    private boolean success;
+
+    // 🔑 REQUIRED for Feign / Jackson
+    public ApiResponseDto() {
     }
-    
-    public ApiResponseDto(Boolean success, String message, T data) {
-        this.success = success;
+
+    // ✅ Keeps ALL existing usage intact
+    public ApiResponseDto(String message, T data, boolean success) {
         this.message = message;
         this.data = data;
+        this.success = success;
     }
 }

@@ -29,6 +29,9 @@ Start-Sleep -Seconds 5
 
 # 4️⃣ API Gateway
 Start-Service "API Gateway" "api-gateway"
+Start-Sleep -Seconds 5
+
+Start-Service "MCQ-service" "mcq-service"
 
 Write-Host "All services started!" -ForegroundColor Green
 Write-Host "Eureka Dashboard: http://localhost:8761"

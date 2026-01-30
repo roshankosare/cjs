@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         );
       }
     } finally {
-      setTimeout(() => setIsLoading(false), 2000);
+      setTimeout(() => setIsLoading(false), 1000);
     }
   };
   useEffect(() => {

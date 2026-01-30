@@ -25,6 +25,8 @@ const EditProblem = () => {
           { withCredentials: true }
         );
 
+        console.log("Fetched problem:", res.data.data);
+
         setProblem(res.data.data);
       } catch (error) {
         if (error instanceof AxiosError) {

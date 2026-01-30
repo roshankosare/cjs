@@ -3,7 +3,7 @@ import { z } from "zod";
 const testCaseSchema = z.object({
   input: z.string().min(1, "Input required"),
   output: z.string().min(1, "Output required"),
-  isSample: z.boolean(), // 🔥 REQUIRED (not default)
+  sample: z.boolean().default(false), // 🔥 REQUIRED (not default)
 });
 
 export const problemSchema = z.object({
@@ -18,4 +18,5 @@ export const problemSchema = z.object({
   testCases: z.array(testCaseSchema).min(1),
 });
 
-export type ProblemFormData = z.infer<typeof problemSchema>;
+export type ProblemFormInput = z.input<typeof problemSchema>;
+export type ProblemFormData = z.output<typeof problemSchema>;

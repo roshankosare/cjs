@@ -51,13 +51,13 @@ const Header = () => {
 
         <div className="hidden sm:flex sm:flex-row self-end  ">
           {Links.map((link) => (
-            <a
+            <Link
               key={link.id}
-              href={link.link}
+              to={link.link}
               className="mx-4 text-md font-medium text-gray-500 hover:text-blue-500 flex pb-0"
             >
               {link.title}
-            </a>
+            </Link>
           ))}
         </div>
       </div>

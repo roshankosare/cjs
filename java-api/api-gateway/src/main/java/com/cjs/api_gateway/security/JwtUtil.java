@@ -4,26 +4,33 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import java.security.Key;
-import java.util.List;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 public class JwtUtil {
 
+    // ⚠️ MUST be exactly the same as AuthController
     private static final String SECRET =
-            "my-super-secret-key-my-super-secret-key"; // move to env
+            "this_is_a_very_secure_secret_key_which_is_32_bytes_long";
 
-    private static final Key KEY =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+    private static final SecretKey KEY =
+            Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     public static Claims validateAndGetClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(KEY)
+
+        return Jwts.parserBuilder()        // ✅ not deprecated
+                .setSigningKey(KEY)       // ✅ SecretKey
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(token)    // throws exception if invalid
                 .getBody();
     }
 
-    public static List<String> getRoles(Claims claims) {
-        return claims.get("roles", List.class);
+    public static String getRole(Claims claims) {
+        // matches: .claim("role", user.getRole())
+        return claims.get("role", String.class);
+    }
+
+    public static Integer getUserId(Claims claims) {
+        return Integer.parseInt(claims.getSubject());
     }
 }

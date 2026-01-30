@@ -9,15 +9,15 @@ import type {
   UseFormRegister,
   UseFieldArrayRemove,
 } from "react-hook-form";
-import type { ProblemFormData } from "./problem-schema";
+import type { ProblemFormData, ProblemFormInput } from "./problem-schema";
 
 type TestCasesPanelProps = {
   fields: { id: string }[];
   append: (value: ProblemFormData["testCases"][number]) => void;
   remove: UseFieldArrayRemove;
-  control: Control<ProblemFormData>;
-  register: UseFormRegister<ProblemFormData>;
-  errors: FieldErrors<ProblemFormData>;
+  control: Control<ProblemFormInput>;
+  register: UseFormRegister<ProblemFormInput>;
+  errors: FieldErrors<ProblemFormInput>;
 };
 
 export function TestCasesPanel({
@@ -39,7 +39,7 @@ export function TestCasesPanel({
           variant="outline"
           type="button"
           onClick={() =>
-            append({ input: "", output: "", isSample: false })
+            append({ input: "", output: "", sample: false })
           }
         >
           <Plus className="w-4 h-4 mr-1" />

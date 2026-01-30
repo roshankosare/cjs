@@ -21,6 +21,7 @@ public class GetProblemDto {
     private String description = "";
 
     private List<SampleTestCaseDto> sampleTestCases = new ArrayList<>();
+    
 
     private Difficulty difficulty = Difficulty.EASY;
 

@@ -8,6 +8,9 @@ import com.cjs.cjs_service.service.codeExecutionSerivce.CodeExecutionRequest;
 import com.cjs.cjs_service.service.codeExecutionSerivce.CodeExecutorFactory;
 
 import jakarta.annotation.PostConstruct;
+
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -33,10 +36,13 @@ public class CodeExecutionWorker {
         queue.offer(new JobRequest(job, request));
     }
 
-    @PostConstruct
-    @Async
-    public void start() {
-        while (true) {
+    @EventListener(ApplicationReadyEvent.class)
+    public void startWorker() {
+        Thread.ofVirtual().start(this::workerLoop);
+    }
+
+    private void workerLoop() {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 JobRequest jr = queue.take();
                 ExecutionJob job = jr.job();
@@ -58,6 +64,9 @@ public class CodeExecutionWorker {
                 }
 
                 job.setStatus(ExecutionStatus.COMPLETED);
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // graceful shutdown
             } catch (Exception e) {
                 e.printStackTrace();
             }

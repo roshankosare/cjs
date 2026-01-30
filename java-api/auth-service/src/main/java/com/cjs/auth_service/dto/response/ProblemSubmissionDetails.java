@@ -1,6 +1,6 @@
-package com.cjs.cjs_service.dto;
+package com.cjs.auth_service.dto.response;
 
- // or keep same package name in both services
+// or keep same package name in both services
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

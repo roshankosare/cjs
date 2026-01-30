@@ -5,12 +5,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
-import type { ProblemFormData } from "./problem-schema";
+import type { ProblemFormInput } from "./problem-schema";
 
 type TestCaseCardProps = {
   index: number;
-  control: Control<ProblemFormData>;
-  register: UseFormRegister<ProblemFormData>;
+  control: Control<ProblemFormInput>;
+  register: UseFormRegister<ProblemFormInput>;
   remove: (index: number) => void;
 };
 
@@ -41,8 +41,9 @@ export function TestCaseCard({
         <div className="flex items-center gap-2">
           <Controller
             control={control}
-            name={`testCases.${index}.isSample`}
+            name={`testCases.${index}.sample`}
             render={({ field }) => (
+             
               <div
                 onClick={(e) => e.stopPropagation()}
                 className="flex items-center gap-2"
@@ -53,9 +54,9 @@ export function TestCaseCard({
                     field.onChange(checked === true)
                   }
                 />
-                {field.value && (
+               
                   <span className="text-xs font-medium">Sample</span>
-                )}
+                
               </div>
             )}
           />

@@ -26,7 +26,7 @@ export type AdminProblem = {
   testCases: {
     input: string;
     output: string;
-    isSample:boolean;
+    sample:boolean;
   }[];
   constraints?: string[];
   hints?: string[];

@@ -23,31 +23,39 @@ const SolutionPage = () => {
 
   const [submission, setSubmissions] = useState<ProblemSubmission[]>([]);
 
-  const fetchSubmissions = async (id: number) => {
-    try {
-      if (!id) return;
-      const res = await axios.get(
-        `http://localhost:5046/api/users/submissions/${id}`,
-        {
-          withCredentials: true,
+  useEffect(() => {
+    if (!problem || !isAuthenticated || activeTab !== "submissions") return;
+
+    console.log("Fetching submissions for problem id:", problem.id);
+    const fetchSubmissions = async (id: number) => {
+      try {
+        if (!id ) return;
+        const res = await axios.get(
+          `http://localhost:5046/api/users/submissions/${id}`,
+          {
+            withCredentials: true,
+          },
+        );
+        console.log(res.data.data);
+        setSubmissions(res.data.data);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log(error.response?.data.message);
         }
-      );
-      console.log(res.data.data);
-      setSubmissions(res.data.data);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log(error.response?.data.message);
+      } finally {
+        setIsProblemLoading(false);
       }
-    } finally {
-      setIsProblemLoading(false);
+    };
+    if (problem && isAuthenticated) {
+      fetchSubmissions(problem.id);
     }
-  };
+  }, [problem, isAuthenticated, activeTab]);
 
   const fetchProblem = useCallback(async () => {
     try {
       const res = await axios.get(`http://localhost:5046/api/problems/${slug}`);
       setProblem(res.data.data);
-      fetchSubmissions(res.data.data.id);
+      console.log(res.data.data);
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log(error.response?.data.message);

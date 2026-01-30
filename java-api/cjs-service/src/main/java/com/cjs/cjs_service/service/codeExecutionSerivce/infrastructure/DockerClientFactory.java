@@ -1,7 +1,5 @@
 package com.cjs.cjs_service.service.codeExecutionSerivce.infrastructure;
 
-
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -15,15 +13,19 @@ public final class DockerClientFactory {
 
     public static DockerClient create() {
 
-        DefaultDockerClientConfig config =
-                DefaultDockerClientConfig.createDefaultConfigBuilder()
-                        // LOCAL (default)
-                        // uses unix:///var/run/docker.sock (Linux)
-                        // or npipe://./pipe/docker_engine (Windows)
-                        .build();
+        DefaultDockerClientConfig.Builder configBuilder =
+                DefaultDockerClientConfig.createDefaultConfigBuilder();
 
-        // 🔥 When you want remote host later:
-        // .withDockerHost("tcp://REMOTE_IP:2375")
+        // 🔹 Optional override (works in container & host)
+        String dockerHost = System.getenv("DOCKER_HOST");
+
+        if (dockerHost != null && !dockerHost.isBlank()) {
+            configBuilder.withDockerHost(dockerHost);
+        }
+
+        DefaultDockerClientConfig config = configBuilder.build();
+
+        System.out.println("Docker host resolved to: " + config.getDockerHost());
 
         ApacheDockerHttpClient httpClient =
                 new ApacheDockerHttpClient.Builder()
@@ -36,4 +38,3 @@ public final class DockerClientFactory {
         return DockerClientImpl.getInstance(config, httpClient);
     }
 }
-

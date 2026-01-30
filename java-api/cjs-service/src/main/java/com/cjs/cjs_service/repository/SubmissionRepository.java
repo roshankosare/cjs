@@ -8,7 +8,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Integer> {
-    void updateStatus(int submissionId, SubmissionStatus status);
+   
     List<Submission> findByUserIdAndProblemId(int userId, int problemId);
+    List<Submission> findByUserId(int userId);
 
 }

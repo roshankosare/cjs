@@ -46,6 +46,7 @@ services:
       - DB_URL=jdbc:mysql://host.docker.internal:3306/cjs_db
       - DB_USERNAME=root
       - DB_PASSWORD=cdac
+      - DOCKER_HOST=tcp://host.docker.internal:2375
   
   mcq-service:
     build: ./mcq-service

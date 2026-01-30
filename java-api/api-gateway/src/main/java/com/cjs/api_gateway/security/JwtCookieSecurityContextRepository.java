@@ -10,17 +10,15 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 public class JwtCookieSecurityContextRepository
         implements ServerSecurityContextRepository {
 
-    private static final String COOKIE_NAME = "access_token";
+    private static final String COOKIE_NAME = "jwt";
 
     @Override
-    public Mono<Void> save(ServerWebExchange exchange,
-                           SecurityContext context) {
-        // Stateless JWT → nothing to save
+    public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
         return Mono.empty();
     }
 
@@ -31,29 +29,26 @@ public class JwtCookieSecurityContextRepository
                 .getCookies()
                 .getFirst(COOKIE_NAME);
 
-        if (cookie == null) {
+        if (cookie == null)
             return Mono.empty();
-        }
 
         try {
-            Claims claims =
-                    JwtUtil.validateAndGetClaims(cookie.getValue());
+            Claims claims = JwtUtil.validateAndGetClaims(cookie.getValue());
 
-            var authorities = JwtUtil.getRoles(claims).stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .collect(Collectors.toList());
+            String userId = JwtUtil.getUserId(claims).toString();
+            String role = JwtUtil.getRole(claims);
 
-            var authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            claims.getSubject(),
-                            null,
-                            authorities
-                    );
+            var authorities = List.of(
+                    new SimpleGrantedAuthority("ROLE_" + role));
+
+            var authentication = new UsernamePasswordAuthenticationToken(
+                    userId,
+                    null,
+                    authorities);
 
             return Mono.just(new SecurityContextImpl(authentication));
 
         } catch (Exception e) {
-            // Invalid / expired JWT → unauthenticated
             return Mono.empty();
         }
     }

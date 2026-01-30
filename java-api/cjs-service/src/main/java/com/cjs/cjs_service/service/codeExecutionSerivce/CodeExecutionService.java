@@ -48,9 +48,11 @@ public class CodeExecutionService {
                 })
                 .collect(Collectors.toList());
 
-        CodeExecutionRequest request = new CodeExecutionRequest(dto.getLanguage(), dto.getCode(), testCases);
+        CodeExecutionRequest request = new CodeExecutionRequest(dto.getLanguage(), dto.getSourceCode(), testCases);
 
+        System.out.println("Enqueuing job: " + job.getJobId());
         worker.enqueue(job, request);
+        System.out.println("Job enqueued: " + job.getJobId());
         return job.getJobId();
     }
 
@@ -75,7 +77,7 @@ public class CodeExecutionService {
 
         CodeExecutionRequest request = new CodeExecutionRequest(
                 dto.getLanguage(),
-                dto.getCode(),
+                dto.getSourceCode(),
                 testCases);
 
         worker.enqueue(job, request);
