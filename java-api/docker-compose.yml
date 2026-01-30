@@ -2,88 +2,136 @@ version: "3.9"
 
 services:
 
+  # ===============================
+  # MySQL Database
+  # ===============================
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    # optional (for host access)
+    environment:
+      MYSQL_ROOT_PASSWORD: cdac
+      MYSQL_DATABASE: cjs_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===============================
+  # Eureka Server
+  # ===============================
   eureka-server:
     build: ./eureka-server
     container_name: eureka-server
     ports:
       - "8761:8761"
-    volumes:
-      - ./eureka-server:/app
-      - ~/.m2:/root/.m2
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - maven_cache:/root/.m2
 
+  # ===============================
+  # Auth Service
+  # ===============================
   auth-service:
     build: ./auth-service
     container_name: auth-service
     ports:
       - "8083:8083"
     depends_on:
-      - eureka-server
-    volumes:
-      - ./auth-service:/app
-      - ~/.m2:/root/.m2
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - EUREKA_URL=http://eureka-server:8761/eureka
-      - DB_URL=jdbc:mysql://host.docker.internal:3306/cjs_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=cdac
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_URL: http://eureka-server:8761/eureka
+      DB_URL: jdbc:mysql://mysql:3306/cjs_db
+      DB_USERNAME: root
+      DB_PASSWORD: cdac
+    volumes:
+      - maven_cache:/root/.m2
 
-  problem-service:
+  # ===============================
+  # Problem (CJS) Service
+  # ===============================
+  cjs-service:
     build: ./cjs-service
     container_name: cjs-service
     ports:
       - "8082:8082"
     depends_on:
-      - eureka-server
-    volumes:
-      - ./cjs-service:/app
-      - ~/.m2:/root/.m2
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    env_file:
+    - ./cjs-service/.env
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - EUREKA_URL=http://eureka-server:8761/eureka
-      - DB_URL=jdbc:mysql://host.docker.internal:3306/cjs_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=cdac
-      - DOCKER_HOST=tcp://host.docker.internal:2375
-  
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_URL: http://eureka-server:8761/eureka
+      DB_URL: jdbc:mysql://mysql:3306/cjs_db
+      DB_USERNAME: root
+      DB_PASSWORD: cdac
+      DOCKER_HOST: "tcp://host.docker.internal:2375"
+    volumes:
+      - maven_cache:/root/.m2
+
+
+  # ===============================
+  # MCQ Service
+  # ===============================
   mcq-service:
     build: ./mcq-service
     container_name: mcq-service
     ports:
       - "8085:8085"
     depends_on:
-      - eureka-server
-    volumes:
-      - ./mcq-service:/app
-      - ~/.m2:/root/.m2
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - EUREKA_URL=http://eureka-server:8761/eureka
-      - DB_URL=jdbc:mysql://host.docker.internal:3306/cjs_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=cdac
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_URL: http://eureka-server:8761/eureka
+      DB_URL: jdbc:mysql://mysql:3306/cjs_db
+      DB_USERNAME: root
+      DB_PASSWORD: cdac
+    volumes:
+      - maven_cache:/root/.m2
 
+  # ===============================
+  # API Gateway
+  # ===============================
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
     ports:
       - "5046:5046"
     depends_on:
-      - eureka-server
-    volumes:
-      - ./api-gateway:/app
-      - ~/.m2:/root/.m2
+      - auth-service
+      - cjs-service
+      - mcq-service
     environment:
-      - AUTH_SERVICE_HOST=auth-service
-      - AUTH_SERVICE_PORT=8083
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_URL: http://eureka-server:8761/eureka
+      CORS_ALLOWED_ORIGIN: http://localhost:5173
+      AUTH_SERVICE_HOST: auth-service
+      AUTH_SERVICE_PORT: 8083
+      CJS_SERVICE_HOST: cjs-service
+      CJS_SERVICE_PORT: 8082
+      MCQ_SERVICE_HOST: mcq-service
+      MCQ_SERVICE_PORT: 8085
+    volumes:
+      - maven_cache:/root/.m2
 
-      - CJS_SERVICE_HOST=cjs-service
-      - CJS_SERVICE_PORT=8082
-
-      - MCQ_SERVICE_HOST=mcq-service
-      - MCQ_SERVICE_PORT=8085
-
-      - CORS_ALLOWED_ORIGIN=http://localhost:5173
-      - EUREKA_URL=http://eureka-server:8761/eureka
+volumes:
+  mysql_data:
+  maven_cache:
