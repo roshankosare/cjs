@@ -146,7 +146,7 @@ namespace CjsApi.Controllers
                     {
                         Input = tc.Input,
                         Output = tc.ExpectedOutput,
-                        IsSample = tc.IsSample
+                        Sample = tc.IsSample
                     })
                     .ToList()
             };

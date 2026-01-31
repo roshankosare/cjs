@@ -74,11 +74,12 @@ namespace CjsApi.Services.ProblemService
             // Test cases
             foreach (var tc in dto.TestCases)
             {
+                Console.WriteLine($"Adding test case: Input={tc.Input}, Output={tc.Output}, IsSample={tc.Sample}");
                 problem.TestCases.Add(new TestCase
                 {
                     Input = tc.Input,
                     ExpectedOutput = tc.Output,
-                    IsSample = tc.IsSample
+                    IsSample = tc.Sample
                 });
             }
 
@@ -123,11 +124,12 @@ namespace CjsApi.Services.ProblemService
             problem.TestCases.Clear();
             foreach (var tc in dto.TestCases)
             {
+                Console.WriteLine($"Adding test case: Input={tc.Input}, Output={tc.Output}, IsSample={tc.Sample}");
                 problem.TestCases.Add(new TestCase
                 {
                     Input = tc.Input,
                     ExpectedOutput = tc.Output,
-                    IsSample = tc.IsSample
+                    IsSample = tc.Sample
                 });
             }
 
