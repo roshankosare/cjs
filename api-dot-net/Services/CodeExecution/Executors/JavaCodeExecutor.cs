@@ -155,12 +155,16 @@ namespace CjsApi.Services.CodeExecution.Executors
                     });
                 }
 
+                bool allPassed = testResults.All(t => t.Passed);
+
                 return new CodeExecutionResult
                 {
                     ExitCode = 0,
                     Output = $"{testResults.Count(t => t.Passed)} / {testResults.Count} test cases passed",
                     TestCaseResults = testResults,
-                    SubmissionStatus = Models.SubmissionStatus.ACCEPTED
+                    SubmissionStatus = allPassed
+                        ? Models.SubmissionStatus.ACCEPTED
+                        : Models.SubmissionStatus.WRONG_ANSWER
                 };
             }
             finally

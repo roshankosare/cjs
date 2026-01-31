@@ -164,13 +164,16 @@ public sealed class CppCodeExecutor : CodeExecutorBase
             }
 
 
+            bool allPassed = testResults.All(t => t.Passed);
+
             return new CodeExecutionResult
             {
-                //ExitCode = testResults.All(t => t.Passed) ? 0 : 1,
                 ExitCode = 0,
                 Output = $"{testResults.Count(t => t.Passed)} / {testResults.Count} test cases passed",
                 TestCaseResults = testResults,
-                SubmissionStatus = Models.SubmissionStatus.ACCEPTED
+                SubmissionStatus = allPassed
+                    ? Models.SubmissionStatus.ACCEPTED
+                    : Models.SubmissionStatus.WRONG_ANSWER
             };
         }
         finally
