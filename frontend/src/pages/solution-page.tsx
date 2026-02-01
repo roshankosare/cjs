@@ -79,15 +79,15 @@ const SolutionPage = () => {
   return (
     <div className="h-[calc(100vh-90px)] flex flex-col sm:flex-row px-2 py-2 gap-2">
       {/* ================= Problem Panel ================= */}
-      <div className="flex-1 min-h-0 flex flex-col border rounded-md bg-white">
+      <div className="flex-1 min-h-0 flex flex-col border rounded-md bg-card text-card-foreground">
         {/* Tabs */}
         <div className="flex border-b">
           <button
             onClick={() => setActiveTab("description")}
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === "description"
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500 hover:text-gray-700"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Description
@@ -97,8 +97,8 @@ const SolutionPage = () => {
             onClick={() => setActiveTab("submissions")}
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === "submissions"
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500 hover:text-gray-700"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Submissions
@@ -112,10 +112,10 @@ const SolutionPage = () => {
           {activeTab === "submissions" && (
             <>
               {!isAuthenticated ? (
-                <div className="h-full flex items-center justify-center text-sm text-gray-600">
+                <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
                   <p>
                     Please{" "}
-                    <Link to={"/signin"} className="text-blue-500">
+                    <Link to={"/signin"} className="text-primary hover:underline">
                       {" " + "sign in"}
                     </Link>{" "}
                     to view your submissions.
@@ -130,7 +130,7 @@ const SolutionPage = () => {
       </div>
 
       {/* ================= Editor Panel ================= */}
-      <div className="flex-1 min-h-0 border rounded-md bg-white">
+      <div className="flex-1 min-h-0 border rounded-md bg-card text-card-foreground">
         <CodeEditor isAuthenticated={isAuthenticated} problemId={problem.id} />
       </div>
     </div>

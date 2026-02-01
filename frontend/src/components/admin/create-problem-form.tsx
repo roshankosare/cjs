@@ -20,6 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { TestCasesPanel } from "./test-case-panel";
 import { MarkdownEditor } from "../mark-down-editor";
+import { TagInput } from "../ui/tag-input";
 
 
 type Props = {
@@ -30,7 +31,6 @@ const API_BASE = "http://localhost:5046/api/problems";
 
 const CreateProblemForm: React.FC<Props> = ({ problem }) => {
   const [apiError, setApiError] = useState<string | null>(null);
-  // console.log("Edit problem:", problem);
 
   const {
     register,
@@ -43,6 +43,7 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
     defaultValues: {
       difficulty: "EASY",
       testCases: [{ input: "", output: "", sample: false }],
+      tags: [],
     },
   });
 
@@ -62,7 +63,7 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
       title: problem.title,
       difficulty: problem.difficulty,
       description: problem.description,
-      tags: problem.tags.join(", "),
+      tags: problem.tags, // ✅ Directly assign array
       testCases: problem.testCases.map((tc) => ({
         input: tc.input,
         output: tc.output,
@@ -74,7 +75,6 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
   /* -------------------- Submit -------------------- */
   const onSubmit = async (data: ProblemFormInput) => {
     setIsSubmitting(true);
-    // console.log("Form data:", data);
     setSuccess(null);
     setApiError(null);
 
@@ -82,39 +82,38 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
       title: data.title,
       description: data.description,
       difficulty: data.difficulty,
-      timeLimitMs: 1000,
+      timeLimitMs: 1000, // Hardcoded for now
       memoryLimitMb: 256,
       isPublished: true,
-      tags: data.tags.split(",").map((t) => t.trim()),
+      tags: data.tags, // ✅ Already array
       testCases: data.testCases,
     };
 
     try {
       if (problem) {
-        const res = await axios.put(`${API_BASE}/${problem.id}`, payload, {
-          withCredentials: true,
+        await axios.put(`${API_BASE}/${problem.id}`, payload, {
+           withCredentials: true,
         });
-
-        console.log(data);
-        console.log("Update response:", res.data);
         setSuccess(true);
       } else {
-        const res = await axios.post(API_BASE, payload, {
-          withCredentials: true,
+        await axios.post(API_BASE, payload, {
+           withCredentials: true,
         });
-
-        console.log("Create response:", res.data);
         setSuccess(true);
-        reset();
+        reset({
+            title: "",
+            description: "",
+            difficulty: "EASY",
+            tags: [],
+            testCases: [{ input: "", output: "", sample: false }]
+        });
       }
     } catch (err) {
       if (err instanceof AxiosError) {
-        console.log(err.response?.data);
         const message =
           err.response?.data?.message ||
           err.response?.data?.title ||
           "Something went wrong. Please try again.";
-
         setApiError(message);
       }
     } finally {
@@ -124,68 +123,93 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
 
   /* -------------------- Render -------------------- */
   return (
-    <Card className="p-6 max-w-7xl mx-auto">
+    <Card className="p-8 max-w-6xl mx-auto shadow-md">
+       <div className="mb-8 border-b pb-4 pt-4">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground border-l-4 border-primary pl-4">
+            {problem ? "Edit Problem" : "Create New Problem"}
+          </h1>
+          <p className="text-muted-foreground mt-2 pl-5">
+            {problem ? "Update the problem details below." : "Fill in the details to create a new coding challenge."}
+          </p>
+       </div>
+
       <form
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-          console.log("FORM ERRORS:", errors);
-        })}
-        className="space-y-6"
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-8"
       >
         {/* Backend error banner */}
         {apiError && (
-          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {apiError}
+          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700 font-medium">
+            Error: {apiError}
           </div>
         )}
 
-        {success === true && (
-          <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {problem
-              ? "Problem updated successfully!"
-              : "Problem created successfully!"}
+        {success && (
+          <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-700 font-medium">
+            {problem ? "Problem updated successfully!" : "Problem created successfully!"}
           </div>
         )}
 
-        <h1 className="text-2xl font-semibold">
-          {problem ? "Edit Problem" : "Create Problem"}
-        </h1>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* LEFT COLUMN (Details) */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* Title & Difficulty Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-1.5 block">Problem Title</label>
+                    <Input {...register("title")} placeholder="e.g. Two Sum" />
+                    {errors.title && (
+                        <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>
+                    )}
+                </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* LEFT COLUMN */}
-          <div className="space-y-4">
-            {/* Title */}
-            <div>
-              <label className="font-medium">Title</label>
-              <Input {...register("title")} />
-              {errors.title && (
-                <p className="text-sm text-red-500">{errors.title.message}</p>
-              )}
+                <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-1.5 block">Difficulty</label>
+                    <Controller
+                        name="difficulty"
+                        control={control}
+                        render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="EASY">Easy</SelectItem>
+                                <SelectItem value="MEDIUM">Medium</SelectItem>
+                                <SelectItem value="HARD">Hard</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        )}
+                    />
+                </div>
             </div>
 
-            {/* Difficulty */}
-            <div>
-              <label className="font-medium">Difficulty</label>
+             {/* Tags (New Component) */}
+             <div>
+              <label className="text-sm font-semibold text-gray-700 mb-1.5 block">Tags</label>
               <Controller
-                name="difficulty"
+                name="tags"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="EASY">Easy</SelectItem>
-                      <SelectItem value="MEDIUM">Medium</SelectItem>
-                      <SelectItem value="HARD">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <TagInput 
+                    value={field.value} 
+                    onChange={field.onChange} 
+                    placeholder="Type tag and press Enter" 
+                   />
                 )}
               />
+               {errors.tags && (
+                <p className="text-sm text-red-500 mt-1">{errors.tags.message}</p>
+              )}
+               <p className="text-xs text-muted-foreground mt-1">
+                Press Enter or Comma to add a tag.
+              </p>
             </div>
 
             {/* Description */}
             <div>
-              <label className="font-medium">Description</label>
+              <label className="text-sm font-semibold text-gray-700 mb-1.5 block">Description (Markdown)</label>
               <Controller
                 name="description"
                 control={control}
@@ -198,35 +222,31 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
                 )}
               />
             </div>
-
-            {/* Tags */}
-            <div>
-              <label className="font-medium">Tags</label>
-              <Input placeholder="array, dp, math" {...register("tags")} />
-              {errors.tags && (
-                <p className="text-sm text-red-500">{errors.tags.message}</p>
-              )}
-            </div>
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div>
-            <TestCasesPanel
-              fields={fields}
-              append={append}
-              remove={remove}
-              control={control}
-              register={register}
-              errors={errors}
-            />
+          {/* RIGHT COLUMN (Test Cases) */}
+          <div className="lg:col-span-5">
+             <div className="sticky top-6">
+                <TestCasesPanel
+                fields={fields}
+                append={append}
+                remove={remove}
+                control={control}
+                register={register}
+                errors={errors}
+                />
+             </div>
           </div>
         </div>
 
-        {/* Submit */}
-        <Button disabled={isSubmitting} type="submit" className="w-full">
-          {isSubmitting && <Spinner />}
-          {problem ? "Update Problem" : "Create Problem"}
-        </Button>
+        {/* Footer Actions */}
+        <div className="pt-6 border-t flex justify-end">
+             <Button disabled={isSubmitting} type="submit" size="lg" className="min-w-[150px]">
+                {isSubmitting && <Spinner className="mr-2" />}
+                {problem ? "Save Changes" : "Create Problem"}
+            </Button>
+        </div>
+        
       </form>
     </Card>
   );

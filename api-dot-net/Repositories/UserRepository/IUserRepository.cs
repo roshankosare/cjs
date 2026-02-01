@@ -14,5 +14,6 @@ namespace CjsApi.Repositories.UserRepository
 
         Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
 
+        Task<int> CountAsync(CancellationToken cancellationToken = default);
     }
 }

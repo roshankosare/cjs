@@ -16,10 +16,13 @@ import UserProfilePage from "./pages/user-profile-page";
 import AdminMcqPage from "./pages/admin-mcq-page";
 import UserGuard from "./components/auth/user-guard";
 import McqPage from "./pages/mcq-page";
+import QuizHistoryPage from "./pages/quiz-history-page";
+import QuizResults from "./components/mcq/quiz-results";
+
 
 function App() {
   return (
-    <div className="flex flex-col w-full min-h-screen bg-linear-to-b from-white to-blue-200">
+    <div className="flex flex-col w-full min-h-screen bg-background text-foreground">
       <BrowserRouter>
         <AuthProvider>
           <Header />
@@ -41,11 +44,38 @@ function App() {
                     <McqPage />
                   </UserGuard>
                 }
-              ></Route>
+              />
+
+              <Route
+                path="/mcq/history"
+                element={
+                  <UserGuard>
+                    <QuizHistoryPage />
+                  </UserGuard>
+                }
+              />
+
+              <Route
+                 path="/mcq/quiz/:sessionId/result"
+                 element={
+                   <UserGuard>
+                     <div className="container mx-auto px-4 py-8">
+                        <QuizResults 
+                          sessionId={0} // This will be handled by the component using useParams 
+                          onStartNewQuiz={() => window.location.href = '/mcq'} 
+                        />
+                     </div>
+                   </UserGuard>
+                 }
+              />
 
               {/* User routes */}
 
-              <Route path="/profile" element={<UserProfilePage />}></Route>
+              <Route path="/profile" element={
+                
+                <UserGuard>
+                  <UserProfilePage />
+                </UserGuard>}></Route>
 
               {/*Admin Routes */}
 

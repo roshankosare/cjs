@@ -13,8 +13,10 @@ namespace CjsApi.Repositories.SubmissionRepository
         Task UpdateStatusAsync(int submissionId, SubmissionStatus status);
 
         public Task<List<Submission>> GetByUserAndProblemAsync(
-    int userId,
-    int problemId);
+            int userId,
+            int problemId);
+
+        Task<int> CountAsync();
 
     }
 }

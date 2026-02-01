@@ -8,13 +8,15 @@ namespace CjsApi.Repositories.ProblemRepository
         IQueryable<Problem> Query(
        bool onlyPublished,
        Difficulty? difficulty,
-       List<string>? tags
+       List<string>? tags,
+       string? search = null
    );
 
         Task<IEnumerable<Problem>> GetAllAsync(
             bool onlyPublished = true,
             Difficulty? difficulty = null,
-            List<string>? tags = null
+            List<string>? tags = null,
+            string? search = null
         );
 
         Task<Problem?> GetByIdAsync(int id);
@@ -29,5 +31,7 @@ namespace CjsApi.Repositories.ProblemRepository
         Task<bool> ExistsByTitleAsync(string title);
 
         Task<Problem?> GetByIdWithRelationsAsync(int id);
+
+        Task<int> CountAsync();
     }
 }

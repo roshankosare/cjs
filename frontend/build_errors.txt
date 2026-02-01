@@ -1,0 +1,12 @@
+﻿src/mock/problems.ts(8,5): error TS2820: Type '"Easy"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"EASY"'?
+src/mock/problems.ts(23,5): error TS2820: Type '"Easy"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"EASY"'?
+src/mock/problems.ts(37,5): error TS2820: Type '"Easy"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"EASY"'?
+src/mock/problems.ts(51,5): error TS2820: Type '"Medium"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"MEDIUM"'?
+src/mock/problems.ts(64,5): error TS2820: Type '"Medium"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"MEDIUM"'?
+src/mock/problems.ts(77,5): error TS2820: Type '"Medium"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"MEDIUM"'?
+src/mock/problems.ts(90,5): error TS2820: Type '"Medium"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"MEDIUM"'?
+src/mock/problems.ts(102,5): error TS2820: Type '"Hard"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"HARD"'?
+src/mock/problems.ts(116,5): error TS2820: Type '"Hard"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"HARD"'?
+src/mock/problems.ts(128,5): error TS2820: Type '"Easy"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"EASY"'?
+src/mock/problems.ts(140,5): error TS2820: Type '"Easy"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"EASY"'?
+src/mock/problems.ts(152,5): error TS2820: Type '"Hard"' is not assignable to type '"EASY" | "MEDIUM" | "HARD"'. Did you mean '"HARD"'?

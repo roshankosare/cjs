@@ -57,7 +57,7 @@ const AdminProblemListPage = () => {
           "Dynamic programming",
         ].map((tag, i) => (
           <div
-            className="bg-gray-200 text-gray-700 px-2 py-1 text-center rounded-sm "
+            className="bg-secondary text-secondary-foreground px-2 py-1 text-center rounded-sm "
             key={i}
           >
             {tag}

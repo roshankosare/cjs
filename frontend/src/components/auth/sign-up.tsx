@@ -3,32 +3,33 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiCheckCircle } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useAuth } from "@/auth/useAuth";
-
-type SignUpForm = {
-  username: string;
-  email: string;
-  password: string;
-};
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUpSchema, type SignUpSchema } from "@/lib/schemas";
 
 const SignUp = () => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpForm>();
+  } = useForm<SignUpSchema>({
+    resolver: zodResolver(signUpSchema),
+  });
 
   const [error, setError] = useState<string | null>(null);
   const { refetchUser } = useAuth();
-  const onSubmit = async (data: SignUpForm) => {
+
+  const onSubmit = async (data: SignUpSchema) => {
     try {
       setError(null);
-      await axios.post("http://localhost:5046/api/auth/signup", data, {
+      // Exclude confirmPassword from the API payload
+      const { confirmPassword, ...payload } = data;
+      await axios.post("http://localhost:5046/api/auth/signup", payload, {
         withCredentials: true,
       });
       refetchUser();
@@ -43,119 +44,145 @@ const SignUp = () => {
   };
 
   return (
-    <Card className="w-87.5 max-h-145 rounded-2xl shadow-xl mt-5">
-      <CardContent className="px-4 py-2 sm:px-6 sm:py-3">
-        {/* Logo */}
-        <div className="w-12.5 h-12.5 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
-          <p className="font-bold text-white text-xl">{"</>"}</p>
-        </div>
-
-        {/* Title */}
-        <h2 className="text-center text-2xl font-semibold text-gray-500 mb-8">
-          Create your account
-        </h2>
-
-        {error && (
-          <p className="w-full px-2 py-2 text-xs bg-red-100 text-red-500 rounded-2 text-center my-2">
-            {error}
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          {/* Username */}
-          <div className="mb-4">
-            <div className="flex items-center gap-3 rounded-xl border px-4 py-1 focus-within:ring-2 focus-within:ring-blue-400">
-              <FiUser className="text-sm text-gray-500" />
-              <Input
-                type="text"
-                placeholder="Username"
-                className="border-0 focus-visible:ring-0 p-0 text-sm"
-                {...register("username", {
-                  required: "Please enter your username",
-                  minLength: {
-                    value: 3,
-                    message: "Username must be at least 3 characters",
-                  },
-                })}
-              />
+    <div className="w-full max-w-md mx-auto pt-10">
+      <Card className="w-full rounded-xl shadow-lg border border-border bg-card">
+        <CardContent className="px-6 py-8 sm:px-8 sm:py-10">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <p className="font-bold text-primary text-xl">{"</>"}</p>
             </div>
-            {errors.username && (
-              <p className="text-xs text-red-400 mt-1">
-                {errors.username.message}
-              </p>
-            )}
           </div>
 
-          {/* Email */}
-          <div className="mb-4">
-            <div className="flex items-center gap-3 rounded-xl border px-4 py-1 focus-within:ring-2 focus-within:ring-blue-400">
-              <FiMail className="text-sm text-gray-500" />
-              <Input
-                type="email"
-                placeholder="Email"
-                className="border-0 focus-visible:ring-0 p-0 text-sm"
-                {...register("email", {
-                  required: "Please enter your email",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Enter a valid email",
-                  },
-                })}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-xs text-red-400 mt-1">
-                {errors.email.message}
-              </p>
-            )}
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-foreground">
+              Create Account
+            </h2>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Join our community of developers
+            </p>
           </div>
 
-          {/* Password */}
-          <div className="mb-2">
-            <div className="flex items-center gap-3 rounded-xl border px-4 py-1 focus-within:ring-2 focus-within:ring-blue-400">
-              <FiLock className="text-sm text-gray-500" />
-              <Input
-                type="password"
-                placeholder="Password"
-                className="border-0 focus-visible:ring-0 p-0 text-sm"
-                {...register("password", {
-                  required: "Please enter your password",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
-              />
+          {error && (
+            <div className="w-full px-4 py-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg text-sm text-center mb-6">
+              {error}
             </div>
-            {errors.password && (
-              <p className="text-xs text-red-400 mt-1">
-                {errors.password.message}
-              </p>
-            )}
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+            {/* Username */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiUser className="text-muted-foreground" />
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Username"
+                  className="pl-10"
+                  {...register("username")}
+                />
+              </div>
+              {errors.username && (
+                <p className="text-xs text-destructive ml-1">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiMail className="text-muted-foreground" />
+                </div>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  className="pl-10"
+                  {...register("email")}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-xs text-destructive ml-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiLock className="text-muted-foreground" />
+                </div>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  className="pl-10"
+                  {...register("password")}
+                />
+              </div>
+              {errors.password && (
+                <p className="text-xs text-destructive ml-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiCheckCircle className="text-muted-foreground" />
+                </div>
+                <Input
+                  type="password"
+                  placeholder="Confirm Password"
+                  className="pl-10"
+                  {...register("confirmPassword")}
+                />
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-xs text-destructive ml-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            {/* Button */}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-lg h-10 text-sm font-medium mt-2"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin" />
+                  Creating account...
+                </span>
+              ) : (
+                "Sign up"
+              )}
+            </Button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-border text-center">
+            <p className="text-muted-foreground text-sm">
+              Already have an account?{" "}
+              <Link
+                to="/signin"
+                className="text-primary font-semibold hover:underline transition-all"
+              >
+                Sign In
+              </Link>
+            </p>
           </div>
-
-          {/* Button */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-full text-md py-6 bg-linear-to-r from-blue-400 to-indigo-500 hover:opacity-90 my-6"
-          >
-            {isSubmitting ? "Creating account..." : "Sign up"}
-          </Button>
-        </form>
-
-        {/* Footer */}
-        <p className="text-center text-gray-400 mt-6">
-          Already have an account?{" "}
-          <Link
-            to="/signin"
-            className="text-blue-500 font-medium cursor-pointer hover:underline"
-          >
-            Sign In
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

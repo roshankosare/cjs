@@ -79,7 +79,7 @@ const McqQuiz = ({ sessionId, onComplete }: McqQuizProps) => {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded">
         {error}
       </div>
     );
@@ -88,7 +88,7 @@ const McqQuiz = ({ sessionId, onComplete }: McqQuizProps) => {
   if (questions.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="text-lg text-gray-600">No questions available for this quiz.</div>
+        <div className="text-lg text-muted-foreground">No questions available for this quiz.</div>
       </div>
     );
   }
@@ -122,9 +122,9 @@ const McqQuiz = ({ sessionId, onComplete }: McqQuizProps) => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">{currentQuestion.question}</CardTitle>
-            <div className="flex gap-2 text-sm text-gray-600">
-              <span className="bg-blue-100 px-2 py-1 rounded">{currentQuestion.category}</span>
-              <span className="bg-green-100 px-2 py-1 rounded">{currentQuestion.difficulty}</span>
+            <div className="flex gap-2 text-sm text-muted-foreground">
+              <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded">{currentQuestion.category}</span>
+              <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded">{currentQuestion.difficulty}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -133,16 +133,16 @@ const McqQuiz = ({ sessionId, onComplete }: McqQuizProps) => {
                 key={option}
                 className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                   selectedOption === option
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-input'
                 }`}
                 onClick={() => setSelectedOption(option)}
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium ${
                     selectedOption === option
-                      ? 'border-blue-500 bg-blue-500 text-white'
-                      : 'border-gray-300'
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-muted-foreground'
                   }`}>
                     {option}
                   </div>
@@ -166,14 +166,14 @@ const McqQuiz = ({ sessionId, onComplete }: McqQuizProps) => {
         /* Result Card */
         <Card>
           <CardHeader>
-            <CardTitle className={`text-lg ${lastResult?.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+            <CardTitle className={`text-lg ${lastResult?.isCorrect ? 'text-green-600' : 'text-destructive'}`}>
               {lastResult?.isCorrect ? '✓ Correct!' : '✗ Incorrect'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-muted rounded-lg">
               <div className="font-medium mb-2">Correct Answer: {lastResult?.correctOption}</div>
-              <div className="text-gray-700">{lastResult?.explanation}</div>
+              <div className="text-muted-foreground">{lastResult?.explanation}</div>
             </div>
 
             <Button onClick={handleNextQuestion} className="w-full">

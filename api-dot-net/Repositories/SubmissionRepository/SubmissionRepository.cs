@@ -59,6 +59,11 @@ namespace CjsApi.Repositories.SubmissionRepository
 
         }
 
+        public Task<int> CountAsync()
+        {
+            return _context.Submissions.CountAsync();
+        }
+
     }
 
 }

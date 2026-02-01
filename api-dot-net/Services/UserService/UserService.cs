@@ -76,17 +76,28 @@ public sealed class UserService
 
 
         // getting error at this
+        // Calculate stats
+        var solvedProblems = userSubmissions
+            .Where(s => s.Status == SubmissionStatus.ACCEPTED)
+            .DistinctBy(s => s.ProblemId)
+            .ToList();
+
         var profile = new UserProfileDto
         {
             Username = user.Username,
             Email = user.Email,
-            About = "",
+            About = user.About ?? "Coding enthusiast", 
+            SolvedCount = solvedProblems.Count,
+            EasyCount = solvedProblems.Count(s => s.Problem.Difficulty == Difficulty.EASY),
+            MediumCount = solvedProblems.Count(s => s.Problem.Difficulty == Difficulty.MEDIUM),
+            HardCount = solvedProblems.Count(s => s.Problem.Difficulty == Difficulty.HARD),
             LatestSubmissions = userSubmissions
                 .Select(s => new ProblemSubmissionDetails
                 {
-                    Title = s.Problem.Title,      // assuming navigation property
+                    Title = s.Problem.Title,
                     Status = s.Status,
-                    Language = s.Language
+                    Language = s.Language,
+                    Difficulty = s.Problem.Difficulty
                 })
                 .ToList()
         };

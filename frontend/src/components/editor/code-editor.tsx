@@ -259,15 +259,15 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
           </Button>
 
           {showProcessing && (
-            <p className="text-xs text-yellow-600">
+            <p className="text-xs text-yellow-600 dark:text-yellow-500">
               Execution is in process...
             </p>
           )}
         </div>
       ) : (
-        <div className="text-xs px-2 py-2 bg-gray-200 flex gap-x-1">
+        <div className="text-xs px-2 py-2 bg-secondary text-secondary-foreground flex gap-x-1">
           You need to
-          <Link to="/signin" className="text-blue-600">
+          <Link to="/signin" className="text-primary hover:underline">
             Login
           </Link>{" "}
           to run or submit
@@ -286,7 +286,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
           <div className="flex gap-4">
             <button
               className={`${
-                activeTab === "test" ? "font-bold" : "text-gray-400"
+                activeTab === "test" ? "font-bold text-foreground" : "text-muted-foreground"
               } text-xs`}
               onClick={() => setActiveTab("test")}
             >
@@ -295,7 +295,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
 
             <button
               className={`${
-                activeTab === "ai" ? "font-bold" : "text-gray-400"
+                activeTab === "ai" ? "font-bold text-foreground" : "text-muted-foreground"
               } text-xs`}
               disabled={!aiFeedback}
               onClick={() => setActiveTab("ai")}
@@ -331,7 +331,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
                         {executionResult.result.testCaseResults.map((tc) => (
                           <div
                             key={tc.index}
-                            className="flex items-center gap-2 bg-gray-200 px-2 py-1 rounded"
+                            className="flex items-center gap-2 bg-secondary text-secondary-foreground px-2 py-1 rounded"
                           >
                             {tc.passed ? (
                               <FaCircleCheck className="text-green-600" />
@@ -355,7 +355,7 @@ const CodeEditor: React.FC<Props> = ({ isAuthenticated, problemId }) => {
                   )}
 
                   {!isAiLoading && aiFeedback && (
-                    <div className="bg-gray-100 p-3 rounded whitespace-pre-wrap">
+                    <div className="bg-muted p-3 rounded whitespace-pre-wrap text-foreground">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {aiFeedback}
                       </ReactMarkdown>

@@ -17,7 +17,8 @@ namespace CjsApi.Repositories.ProblemRepository
         public IQueryable<Problem> Query(
     bool onlyPublished,
     Difficulty? difficulty,
-    List<string>? tags
+    List<string>? tags,
+    string? search = null
 )
         {
             var query = _context.Problems
@@ -32,8 +33,14 @@ namespace CjsApi.Repositories.ProblemRepository
 
             if (tags != null && tags.Any())
                 query = query.Where(p =>
-    p.ProblemTags.Any(pt => tags.Contains(pt.Tag.Name))
-);
+                    p.ProblemTags.Any(pt => tags.Contains(pt.Tag.Name))
+                );
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.ToLower();
+                query = query.Where(p => p.Title.ToLower().Contains(search) || p.Slug.ToLower().Contains(search));
+            }
 
             return query;
         }
@@ -42,7 +49,8 @@ namespace CjsApi.Repositories.ProblemRepository
         public async Task<IEnumerable<Problem>> GetAllAsync(
             bool onlyPublished = true,
             Difficulty? difficulty = null,
-            List<string>? tags = null
+            List<string>? tags = null,
+            string? search = null
         )
         {
             IQueryable<Problem> query = _context.Problems
@@ -139,6 +147,10 @@ namespace CjsApi.Repositories.ProblemRepository
         public async Task<bool> ExistsBySlugAsync(string slug)
         {
             return await _context.Problems.AnyAsync(p => p.Slug == slug);
+        }
+        public async Task<int> CountAsync()
+        {
+            return await _context.Problems.CountAsync();
         }
     }
 }

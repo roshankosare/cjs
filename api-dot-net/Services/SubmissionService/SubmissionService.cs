@@ -49,7 +49,8 @@ GetProblemSubmissionsAsync(int userId, int problemId)
             {
                 Title = s.Problem.Title,
                 Status = s.Status,
-                Language = s.Language
+                Language = s.Language,
+                Difficulty = s.Problem.Difficulty
             })
             .ToList();
     }

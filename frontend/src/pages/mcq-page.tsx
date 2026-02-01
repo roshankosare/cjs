@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,6 +24,11 @@ const McqPage = () => {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    mcqService.getCategories().then(setAvailableCategories).catch(console.error);
+  }, []);
 
   const [quizConfig, setQuizConfig] = useState<StartQuizDto>({
     questionCount: 10,
@@ -83,10 +88,10 @@ const McqPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             MCQ Practice
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Test your knowledge with our interactive quiz system
           </p>
         </div>
@@ -97,7 +102,7 @@ const McqPage = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded">
                 {error}
               </div>
             )}
@@ -136,16 +141,9 @@ const McqPage = () => {
 
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="General">General</SelectItem>
-                  <SelectItem value="Programming">Programming</SelectItem>
-                  <SelectItem value="Data Structures">
-                    Data Structures
-                  </SelectItem>
-                  <SelectItem value="Algorithms">Algorithms</SelectItem>
-                  <SelectItem value="Database">Database</SelectItem>
-                  <SelectItem value="Web Development">
-                    Web Development
-                  </SelectItem>
+                  {availableCategories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

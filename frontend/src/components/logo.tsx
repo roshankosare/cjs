@@ -15,9 +15,9 @@ const Logo = ({ size = "md" }: LogoProps) => {
     <div
       className={`flex flex-row gap-x-1 font-bold ${sizeClasses[size]}`}
     >
-      <p className="text-blue-600 font-extrabold">{`</>`}</p>
-      <p className="text-gray-600">Code</p>
-      <p className="text-blue-600">Quest</p>
+      <p className="text-blue-600 dark:text-blue-500 font-extrabold">{`</>`}</p>
+      <p className="text-foreground font-bold">Code</p>
+      <p className="text-blue-600 dark:text-blue-500 font-bold">Arena</p>
     </div>
   );
 };

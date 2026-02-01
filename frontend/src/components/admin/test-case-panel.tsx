@@ -32,38 +32,39 @@ export function TestCasesPanel({
 
   return (
     <Card className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold">Test Cases</h2>
-        <Button
-          size="sm"
-          variant="outline"
-          type="button"
-          onClick={() =>
-            append({ input: "", output: "", sample: false })
-          }
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          Add
-        </Button>
-      </div>
-
-      {/* Buttons Row */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Test Case Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2 border-b">
         {fields.map((_, index) => (
           <Button
             key={index}
             type="button"
-            variant={activeIndex === index ? "default" : "outline"}
+            variant={activeIndex === index ? "default" : "secondary"}
+            size="sm"
             onClick={() => setActiveIndex(index)}
+            className="flex-shrink-0"
           >
-            TC {index + 1}
+            Case {index + 1}
           </Button>
         ))}
+         <Button
+          size="sm"
+          variant="outline"
+          type="button"
+          onClick={() => {
+            append({ input: "", output: "", sample: false });
+            setActiveIndex(fields.length);
+          }}
+          className="flex-shrink-0"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Case
+        </Button>
       </div>
 
       {/* Expanded Test Case */}
       {fields[activeIndex] && (
         <TestCaseCard
+          key={fields[activeIndex].id}
           index={activeIndex}
           control={control}
           register={register}

@@ -26,7 +26,9 @@ namespace CjsApi.Controllers
         [HttpGet]
         public async Task<ActionResult<ApiResponseDto<GetAllProblemDto>>> GetAllProblems(
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null,
+            [FromQuery] Difficulty? difficulty = null
             )
         {
             if (page <= 0) page = 1;
@@ -34,8 +36,9 @@ namespace CjsApi.Controllers
 
             // 1️⃣ Fetch all (or IQueryable ideally)
             var problemsQuery = _problemService.GetProblemsQueryable(
-                difficulty: null,
-                tags: null
+                difficulty: difficulty,
+                tags: null,
+                search: search
             );
 
             // 2️⃣ Total count (before pagination)

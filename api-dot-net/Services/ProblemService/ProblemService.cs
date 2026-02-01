@@ -19,13 +19,15 @@ namespace CjsApi.Services.ProblemService
 
         public IQueryable<Problem> GetProblemsQueryable(
             Difficulty? difficulty,
-            List<string>? tags
+            List<string>? tags,
+            string? search = null // Optional
         )
         {
             return _problemRepository.Query(
                 onlyPublished: true,
                 difficulty: difficulty,
-                tags: tags
+                tags: tags,
+                search: search
             );
         }
 

@@ -42,6 +42,11 @@ namespace CjsApi.Repositories.UserRepository
         }
 
 
+        public async Task<int> CountAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Users.CountAsync(cancellationToken);
+        }
+
     }
 
 }

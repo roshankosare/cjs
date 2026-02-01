@@ -12,7 +12,7 @@ export const problemSchema = z.object({
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
   description: z.string().min(20),
   //constraints: z.string().optional(),
-  tags: z.string().min(1),
+  tags: z.array(z.string()).min(1, "At least one tag is required"),
   //explanation: z.string().optional(),
 
   testCases: z.array(testCaseSchema).min(1),

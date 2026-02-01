@@ -9,22 +9,22 @@ import { useForm } from "react-hook-form";
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
-type SignInForm = {
-  email: string;
-  password: string;
-};
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signInSchema, type SignInSchema } from "@/lib/schemas";
 
 const SignIn = () => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInForm>();
+  } = useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
+  });
 
   const [error, setError] = useState<string | null>(null);
   const { refetchUser } = useAuth();
 
-  const onSubmit = async (data: SignInForm) => {
+  const onSubmit = async (data: SignInSchema) => {
     try {
       console.log(data);
       setError(null);
@@ -43,100 +43,116 @@ const SignIn = () => {
   };
 
   return (
-    <Card className="w-87.5 max-h-135 rounded-2xl shadow-xl mt-5">
-      <CardContent className="px-4 py-2 sm:px-6 sm:py-3">
-        {/* Logo */}
-        <div className="w-12.5 h-12.5 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
-          <p className="font-bold text-white text-xl">{"</>"}</p>
-        </div>
-
-        {/* Title */}
-        <h2 className="text-center text-2xl font-semibold text-gray-500 mb-8">
-          Sign in to your account
-        </h2>
-        {error && (
-          <p className="w-full px-2 py-2 text-xs bg-red-100 text-red-500 rounded-2 text-center my-2">
-            {error}
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          {/* Email */}
-          <div className="mb-4">
-            <div className="flex items-center gap-3 rounded-xl border px-4 py-1 focus-within:ring-2 focus-within:ring-blue-400">
-              <FiMail className="text-sm text-gray-500" />
-              <Input
-                type="email"
-                placeholder="Email"
-                className="border-0 focus-visible:ring-0 p-0 text-sm"
-                {...register("email", {
-                  required: "Please enter your email",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Enter a valid email",
-                  },
-                })}
-              />
+    <div className="w-full max-w-md mx-auto pt-10">
+      <Card className="w-full rounded-xl shadow-lg border border-border bg-card">
+        <CardContent className="px-6 py-8 sm:px-8 sm:py-10">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <p className="font-bold text-primary text-xl">{"</>"}</p>
             </div>
-            {errors.email && (
-              <p className="text-xs text-red-400 mt-1">
-                {errors.email.message}
-              </p>
-            )}
           </div>
 
-          {/* Password */}
-          <div className="mb-2">
-            <div className="flex items-center gap-3 rounded-xl border px-4 py-1 focus-within:ring-2 focus-within:ring-blue-400">
-              <FiLock className="text-sm text-gray-500" />
-              <Input
-                type="password"
-                placeholder="Password"
-                className="border-0 focus-visible:ring-0 p-0 text-sm"
-                {...register("password", {
-                  required: "Please enter your password",
-                })}
-              />
-            </div>
-            {errors.password && (
-              <p className="text-xs text-red-400 mt-1">
-                {errors.password.message}
-              </p>
-            )}
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-foreground">
+              Welcome Back
+            </h2>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Sign in to continue your journey
+            </p>
           </div>
 
-          {/* Forgot password */}
-          <div className="text-right mb-6">
-            <button
-              type="button"
-              className="text-sm text-gray-400 hover:text-blue-500"
+          {error && (
+            <div className="w-full px-4 py-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg text-sm text-center mb-6">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+            {/* Email */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiMail className="text-muted-foreground" />
+                </div>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  className="pl-10"
+                  {...register("email")}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-xs text-destructive ml-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiLock className="text-muted-foreground" />
+                </div>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  className="pl-10"
+                  {...register("password")}
+                />
+              </div>
+              {errors.password && (
+                <p className="text-xs text-destructive ml-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Forgot password */}
+            <div className="text-right">
+              <button
+                type="button"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                onClick={() => {}}
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {/* Button */}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-lg h-10 text-sm font-medium"
             >
-              Forgot password?
-            </button>
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                "Sign in"
+              )}
+            </Button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-border text-center">
+            <p className="text-muted-foreground text-sm">
+              Don’t have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-primary font-semibold hover:underline transition-all"
+              >
+                Sign up
+              </Link>
+            </p>
           </div>
-
-          {/* Button */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-full text-md py-6 bg-linear-to-r from-blue-400 to-indigo-500 hover:opacity-90 my-4"
-          >
-            {isSubmitting ? "Signing in..." : "Sign in"}
-          </Button>
-        </form>
-
-        {/* Footer */}
-        <p className="text-center text-gray-400 mt-6">
-          Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-500 font-medium cursor-pointer hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

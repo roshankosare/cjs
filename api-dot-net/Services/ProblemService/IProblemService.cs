@@ -8,7 +8,8 @@ namespace CjsApi.Services.ProblemService
 
         public IQueryable<Problem> GetProblemsQueryable(
          Difficulty? difficulty,
-         List<string>? tags
+         List<string>? tags,
+         string? search = null
      );
         // Task<IEnumerable<Problem>> GetProblemsAsync(
         //     Difficulty? difficulty,

@@ -26,6 +26,8 @@ namespace CjsApi.Models
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Role Role { get; set; } = Role.USER;
 
+        public string? About { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation

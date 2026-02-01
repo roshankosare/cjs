@@ -45,16 +45,18 @@ const Header = () => {
     }
   };
   return (
-    <div className=" shadow-sm w-full h-[30]  px-2 sm:px-5 py-2 sm:py-5 flex flex-row justify-between items-center">
-      <div className="flex flex-row gap-x-8">
-        <Logo size="lg" />
+    <div className="bg-card/80 backdrop-blur-md sticky top-0 z-50 border-b border-border w-full h-[30] px-2 sm:px-5 py-2 sm:py-5 flex flex-row justify-between items-center">
+      <div className="flex flex-row gap-x-8 items-center">
+        <Link to="/" className="hover:opacity-80 transition-opacity">
+          <Logo size="lg" />
+        </Link>
 
-        <div className="hidden sm:flex sm:flex-row self-end  ">
+        <div className="hidden sm:flex sm:flex-row items-center gap-6">
           {Links.map((link) => (
             <Link
               key={link.id}
               to={link.link}
-              className="mx-4 text-md font-medium text-gray-500 hover:text-blue-500 flex pb-0"
+              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
             >
               {link.title}
             </Link>
@@ -63,50 +65,50 @@ const Header = () => {
       </div>
 
       {isLoading && (
-        <div className="w-8 h-8 rounded-full bg-gray-400 animate-pulse"></div>
+        <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
       )}
 
       {!isLoading && !isAuthenticated && (
-        <div className=" sm:flex sm:flex-row self-end  ">
-          <Link
-            to="/signin"
-            className="mx-4 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-500 flex"
-          >
-            Sign In
-          </Link>
+        <div className="flex self-end">
+          <Button asChild variant="default" className="rounded-md font-semibold px-6 shadow-md hover:shadow-lg transition-all">
+            <Link to="/signin">Sign In</Link>
+          </Button>
         </div>
       )}
 
       {!isLoading && isAuthenticated && (
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* USER PROFILE */}
           {user?.role === "USER" && (
-            <Link
-              to="/profile"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white hover:ring-2 hover:ring-blue-400 transition"
+            <Button
+              asChild
+              variant="secondary"
+              size="icon"
+              className="rounded-full shadow-sm hover:ring-2 hover:ring-primary/20 transition-all"
               title="Profile"
             >
-              <FiUser className="w-4 h-4" />
-            </Link>
+              <Link to="/profile">
+                <FiUser className="w-5 h-5" />
+              </Link>
+            </Button>
           )}
 
           {/* ADMIN DASHBOARD */}
           {user?.role === "ADMIN" && (
-            <Link
-              to="/admin/dashboard"
-              className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
-            >
-              <MdDashboard className="w-5 h-5" />
-              Dashboard
-            </Link>
+            <Button asChild variant="ghost" className="gap-2 font-medium">
+              <Link to="/admin/dashboard">
+                <MdDashboard className="w-5 h-5 text-primary" />
+                Dashboard
+              </Link>
+            </Button>
           )}
 
           {/* LOGOUT */}
           <Button
             size="sm"
-            variant="outline"
+            variant="ghost"
             onClick={() => setOpen(true)}
-            className="flex items-center gap-1"
+            className="flex items-center gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors font-medium"
           >
             <FiLogOut className="w-4 h-4" />
             Logout

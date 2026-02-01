@@ -1,8 +1,11 @@
 import axios, { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaClock } from "react-icons/fa";
 import Loading from "@/components/loading";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
 
 type Submission = {
   title: string;
@@ -14,6 +17,10 @@ type UserProfile = {
   username: string;
   email: string;
   about: string;
+  solvedCount: number;
+  easyCount: number;
+  mediumCount: number;
+  hardCount: number;
   latestSubmissions: Submission[];
 };
 
@@ -28,6 +35,7 @@ const UserProfilePage = () => {
           withCredentials: true,
         });
         setProfile(res.data.data);
+        console.log(res.data.data);
       } catch (error) {
         if (error instanceof AxiosError) {
           console.error(error.response?.data);
@@ -41,104 +49,144 @@ const UserProfilePage = () => {
   }, []);
 
   if (loading) {
-    return <Loading></Loading>;
+    return <Loading />;
   }
 
   if (!profile) {
-    return <div className="p-6">Failed to load profile</div>;
+    return (
+      <div className="flex h-[50vh] items-center justify-center text-muted-foreground">
+        Failed to load profile
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 p-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
-        {/* LEFT SIDEBAR */}
-        <div className="col-span-3 bg-white rounded-xl shadow p-6">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600">
-              {profile.username[0].toUpperCase()}
-            </div>
+    <div className="min-h-screen p-4 md:p-8 animate-in fade-in duration-500">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* LEFT SIDEBAR: PROFILE INFO */}
+        <div className="col-span-1 md:col-span-4 lg:col-span-3 space-y-6">
+          <Card className="overflow-hidden border-border/50 shadow-md">
+            <div className="h-24 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-900 dark:to-indigo-900"></div>
+            <CardContent className="pt-0 relative px-6 pb-6">
+              <div className="absolute -top-12 left-6">
+                <div className="w-24 h-24 rounded-2xl bg-card border-4 border-card flex items-center justify-center shadow-lg">
+                  <div className="w-full h-full rounded-xl bg-primary/10 flex items-center justify-center text-4xl font-bold text-primary">
+                    {profile.username[0].toUpperCase()}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-14 space-y-1">
+                <h2 className="text-2xl font-bold text-foreground">{profile.username}</h2>
+                <p className="text-sm text-muted-foreground">{profile.email}</p>
+              </div>
 
-            <h2 className="mt-4 text-lg font-bold">{profile.username}</h2>
-            <p className="text-sm text-gray-500">{profile.email}</p>
-
-            {/* <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md text-sm">
-              Edit Profile
-            </button> */}
-          </div>
-
-          {/* <div className="mt-8 space-y-3 text-sm">
-            <div className="font-medium text-blue-600">Profile</div>
-            <div className="text-gray-500">Submissions</div>
-            <div className="text-gray-500">Settings</div>
-            <div className="text-gray-500">Log Out</div>
-          </div> */}
+              <div className="mt-6 pt-6 border-t border-border/50">
+                 <p className="text-sm text-muted-foreground italic">
+                    "{profile.about || "Coding enthusiast on a journey to mastery."}"
+                 </p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border/50 shadow-md">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Languages</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="px-3 py-1 text-xs">C++</Badge>
+                <Badge variant="secondary" className="px-3 py-1 text-xs">Java</Badge>
+                <Badge variant="secondary" className="px-3 py-1 text-xs">Python</Badge>
+                <Badge variant="secondary" className="px-3 py-1 text-xs">JavaScript</Badge>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* MAIN CONTENT */}
-        <div className="col-span-9 space-y-6">
-          {/* PROFILE HEADER */}
-          {/* <div className="bg-white rounded-xl shadow p-6 flex justify-between">
-            <h1 className="text-xl font-bold">User Profile</h1>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm">
-              Edit
-            </button>
-          </div> */}
-
-          {/* STATS */}
-          <div className="grid grid-cols-4 gap-4">
-            <StatCard label="Problems Solved" value="—" />
-            <StatCard label="Hard" value="—" />
-            <StatCard label="Medium" value="—" />
-            <StatCard label="Easy" value="—" />
+        {/* MAIN CONTENT: STATS & SUBMISSIONS */}
+        <div className="col-span-1 md:col-span-8 lg:col-span-9 space-y-6">
+            
+          {/* STATS OVERVIEW */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <StatCard 
+                label="Total Solved" 
+                value={profile.solvedCount} 
+                className="bg-primary/5 border-primary/20 text-primary" 
+                icon={<FaCheckCircle className="w-4 h-4" />}
+            />
+            <StatCard 
+                label="Easy" 
+                value={profile.easyCount} 
+                className="bg-emerald-500/5 border-emerald-500/20 text-emerald-600 dark:text-emerald-400" 
+            />
+            <StatCard 
+                label="Medium" 
+                value={profile.mediumCount} 
+                className="bg-amber-500/5 border-amber-500/20 text-amber-600 dark:text-amber-400" 
+            />
+            <StatCard 
+                label="Hard" 
+                value={profile.hardCount} 
+                className="bg-rose-500/5 border-rose-500/20 text-rose-600 dark:text-rose-400" 
+            />
           </div>
 
-          {/* ABOUT + LANGUAGES */}
-          <div className="grid grid-cols-3 gap-6">
-            <div className="col-span-2 bg-white rounded-xl shadow p-6">
-              <h2 className="font-semibold mb-2">About Me</h2>
-              {profile.about ? (
-                <p className="text-sm text-gray-700">{profile.about}</p>
-              ) : (
-                <p className="text-sm text-gray-400">No bio added yet.</p>
-              )}
-            </div>
+          <div className="grid grid-cols-1 gap-6">
+            {/* PROGRESS GRAPH PLACEHOLDER (Future Feature) */}
+            {/* <Card className="border-border/50 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="text-lg">Activity</CardTitle>
+                </CardHeader>
+                <CardContent className="h-40 flex items-center justify-center text-muted-foreground text-sm">
+                    heatmap coming soon...
+                </CardContent>
+            </Card> */}
 
-            <div className="bg-white rounded-xl shadow p-6">
-              <h2 className="font-semibold mb-2">Languages</h2>
-              <div className="flex flex-wrap gap-2 text-sm">
-                <span className="px-2 py-1 bg-gray-100 rounded">C++</span>
-                <span className="px-2 py-1 bg-gray-100 rounded">Java</span>
-                <span className="px-2 py-1 bg-gray-100 rounded">Python</span>
-              </div>
-            </div>
-          </div>
+            {/* RECENT SUBMISSIONS */}
+            <Card className="border-border/50 shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <FaClock className="w-4 h-4 text-muted-foreground" />
+                    Recent Submissions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {profile.latestSubmissions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No submissions yet. Start solving problems!
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    {profile.latestSubmissions.map((s, idx) => (
+                      <Link
+                        key={idx}
+                        to={`/problems/${encodeURIComponent(s.title)}`}
+                        className="flex justify-between items-center p-3 rounded-lg hover:bg-muted/50 transition-colors group border border-transparent hover:border-border/50"
+                      >
+                        <div className="flex items-center gap-3">
+                          {s.status === "ACCEPTED" ? (
+                            <FaCheckCircle className="text-emerald-500 w-4 h-4" />
+                          ) : (
+                            <FaTimesCircle className="text-destructive w-4 h-4" />
+                          )}
+                          <span className="font-medium text-sm group-hover:text-primary transition-colors">
+                            {s.title}
+                          </span>
+                        </div>
 
-          {/* RECENT SUBMISSIONS */}
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="font-semibold mb-4">Recent Submissions</h2>
-
-            {profile.latestSubmissions.length === 0 ? (
-              <p className="text-sm text-gray-400">No submissions yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {profile.latestSubmissions.map((s, idx) => (
-                  <Link
-                    key={idx}
-                    to={`/problems/${encodeURIComponent(s.title)}`}
-                    className="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FaCheckCircle className="text-green-500" />
-                      <span className="font-medium">{s.title}</span>
-                    </div>
-
-                    <div className="text-xs text-gray-500">
-                      {s.language.toUpperCase()}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+                        <div className="flex items-center gap-4">
+                            <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                                {s.language}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground tabular-nums min-w-[60px] text-right">
+                                {new Date().toLocaleDateString()}
+                            </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -148,11 +196,13 @@ const UserProfilePage = () => {
 
 export default UserProfilePage;
 
-/* ------------------ SMALL COMPONENT ------------------ */
+/* ------------------ HELPERS ------------------ */
 
-const StatCard = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-white rounded-xl shadow p-4 text-center">
-    <div className="text-lg font-bold">{value}</div>
-    <div className="text-xs text-gray-500">{label}</div>
-  </div>
+const StatCard = ({ label, value, className, icon }: { label: string; value: number; className?: string; icon?: React.ReactNode }) => (
+  <Card className={`border shadow-sm flex flex-col items-center justify-center p-4 ${className}`}>
+    <div className="text-3xl font-bold tracking-tight mb-1 flex items-center gap-2">
+        {icon} {value}
+    </div>
+    <div className="text-xs font-medium uppercase tracking-wider opacity-80">{label}</div>
+  </Card>
 );

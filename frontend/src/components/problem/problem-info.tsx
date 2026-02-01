@@ -16,7 +16,7 @@ const ProblemInfo: React.FC<Props> = ({ problem }) => {
         {problem.tags.map((t, i) => (
           <span
             key={i}
-            className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-xs"
+            className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-xs"
           >
             {t}
           </span>
@@ -37,7 +37,7 @@ const ProblemInfo: React.FC<Props> = ({ problem }) => {
           {problem.sampleTestCases.map((s, i) => (
             <div
               key={i}
-              className="bg-gray-200 px-3 py-2 rounded text-sm font-semibold"
+              className="bg-secondary text-secondary-foreground px-3 py-2 rounded text-sm font-semibold"
             >
               <p>Input: {s.input}</p>
               <p>Output: {s.output}</p>

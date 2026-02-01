@@ -2,10 +2,12 @@ import type { Problem } from "@/types/problem";
 
 export const problems: Problem[] = [
   {
+    id: 1,
+    slug: "two-sum",
     title: "Two Sum",
     description:
       "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-    difficulty: "Easy",
+    difficulty: "EASY",
     tags: ["Array", "Hash Table"],
     sampleTestCases: [
       {
@@ -18,9 +20,11 @@ export const problems: Problem[] = [
     hints: ["Use a hash map to store visited numbers"],
   },
   {
+    id: 2,
+    slug: "reverse-string",
     title: "Reverse String",
     description: "Write a function that reverses a string.",
-    difficulty: "Easy",
+    difficulty: "EASY",
     tags: ["String"],
     sampleTestCases: [
       {
@@ -31,10 +35,12 @@ export const problems: Problem[] = [
     constraints: ["1 <= s.length <= 10^5"],
   },
   {
+    id: 3,
+    slug: "valid-parentheses",
     title: "Valid Parentheses",
     description:
       "Given a string containing brackets, determine if the input string is valid.",
-    difficulty: "Easy",
+    difficulty: "EASY",
     tags: ["Stack", "String"],
     sampleTestCases: [
       {
@@ -45,10 +51,12 @@ export const problems: Problem[] = [
     hints: ["Use a stack"],
   },
   {
+    id: 4,
+    slug: "merge-two-sorted-lists",
     title: "Merge Two Sorted Lists",
     description:
       "Merge two sorted linked lists and return it as a sorted list.",
-    difficulty: "Medium",
+    difficulty: "MEDIUM",
     tags: ["Linked List"],
     sampleTestCases: [
       {
@@ -58,10 +66,12 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 5,
+    slug: "longest-substring-without-repeating-characters",
     title: "Longest Substring Without Repeating Characters",
     description:
       "Find the length of the longest substring without repeating characters.",
-    difficulty: "Medium",
+    difficulty: "MEDIUM",
     tags: ["String", "Sliding Window"],
     sampleTestCases: [
       {
@@ -72,9 +82,11 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 6,
+    slug: "search-in-rotated-sorted-array",
     title: "Search in Rotated Sorted Array",
     description: "Search for a target value in a rotated sorted array.",
-    difficulty: "Medium",
+    difficulty: "MEDIUM",
     tags: ["Array", "Binary Search"],
     sampleTestCases: [
       {
@@ -84,10 +96,12 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 7,
+    slug: "climbing-stairs",
     title: "Climbing Stairs",
     description:
       "You can climb either 1 or 2 steps. In how many distinct ways can you reach the top?",
-    difficulty: "Medium",
+    difficulty: "MEDIUM",
     tags: ["Dynamic Programming"],
     sampleTestCases: [
       {
@@ -97,9 +111,11 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 8,
+    slug: "maximum-subarray",
     title: "Maximum Subarray",
     description: "Find the contiguous subarray which has the largest sum.",
-    difficulty: "Hard",
+    difficulty: "HARD",
     tags: ["Array", "Dynamic Programming"],
     sampleTestCases: [
       {
@@ -110,10 +126,12 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 9,
+    slug: "serialize-and-deserialize-binary-tree",
     title: "Serialize and Deserialize Binary Tree",
     description:
       "Design an algorithm to serialize and deserialize a binary tree.",
-    difficulty: "Hard",
+    difficulty: "HARD",
     tags: ["Tree", "DFS", "BFS"],
     sampleTestCases: [
       {
@@ -123,9 +141,11 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 10,
+    slug: "binary-tree-inorder-traversal",
     title: "Binary Tree Inorder Traversal",
     description: "Return the inorder traversal of a binary tree.",
-    difficulty: "Easy",
+    difficulty: "EASY",
     tags: ["Tree", "DFS"],
     sampleTestCases: [
       {
@@ -135,9 +155,11 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 11,
+    slug: "fibonacci-number",
     title: "Fibonacci Number",
     description: "Calculate the nth Fibonacci number.",
-    difficulty: "Easy",
+    difficulty: "EASY",
     tags: ["Recursion", "Dynamic Programming"],
     sampleTestCases: [
       {
@@ -147,9 +169,11 @@ export const problems: Problem[] = [
     ],
   },
   {
+    id: 12,
+    slug: "graph-valid-tree",
     title: "Graph Valid Tree",
     description: "Determine if the given edges form a valid tree.",
-    difficulty: "Hard",
+    difficulty: "HARD",
     tags: ["Graph", "Union Find"],
     sampleTestCases: [
       {

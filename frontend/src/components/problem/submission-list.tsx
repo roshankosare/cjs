@@ -7,14 +7,14 @@ type Props = {
 
 const SubmissionList: React.FC<Props> = ({ submissions }) => {
   return (
-    <div className="text-sm text-gray-700">
+    <div className="text-sm text-foreground">
       <p className="mb-3 font-medium">Your submissions for this problem</p>
 
       {submissions.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full border border-gray-200 rounded-md overflow-hidden">
+          <table className="w-full border border-border rounded-md overflow-hidden">
             {/* Table Head */}
-            <thead className="bg-gray-100 text-gray-600">
+            <thead className="bg-muted text-muted-foreground">
               <tr>
                 {/* <th className="px-3 py-2 text-left font-medium">Title</th> */}
                 <th className="px-3 py-2 text-left font-medium">Language</th>
@@ -27,7 +27,7 @@ const SubmissionList: React.FC<Props> = ({ submissions }) => {
               {submissions.map((s, index) => (
                 <tr
                   key={index}
-                  className="border-t hover:bg-gray-50 transition"
+                  className="border-t hover:bg-muted/50 transition"
                 >
                   {/* Title (trimmed) */}
                   {/* <td className="px-3 py-2 max-w-[220px]">
@@ -40,7 +40,7 @@ const SubmissionList: React.FC<Props> = ({ submissions }) => {
                   </td> */}
 
                   {/* Language */}
-                  <td className="px-3 py-2 text-gray-700">{s.language}</td>
+                  <td className="px-3 py-2 text-foreground">{s.language}</td>
 
                   {/* Status */}
                   <td className="px-3 py-2">
@@ -48,10 +48,10 @@ const SubmissionList: React.FC<Props> = ({ submissions }) => {
                       className={`inline-block px-2 py-1 rounded text-xs font-semibold
                         ${
                           s.status === "ACCEPTED"
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-green-500/10 text-green-500"
                             : s.status === "WRONG_ANSWER"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-red-500/10 text-red-500"
+                            : "bg-yellow-500/10 text-yellow-500"
                         }`}
                     >
                       {s.status}
@@ -63,7 +63,7 @@ const SubmissionList: React.FC<Props> = ({ submissions }) => {
           </table>
         </div>
       ) : (
-        <p className="text-gray-500 text-sm">No submissions yet.</p>
+        <p className="text-muted-foreground text-sm">No submissions yet.</p>
       )}
     </div>
   );

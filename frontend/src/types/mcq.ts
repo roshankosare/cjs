@@ -58,7 +58,7 @@ export interface CreateMcqDto {
   optionC: string;
   optionD: string;
   correctOption: string;
-  correctExplanation: string;
+  correctExplanation?: string;
   incorrectExplanationA?: string;
   incorrectExplanationB?: string;
   incorrectExplanationC?: string;

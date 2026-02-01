@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="text-center max-w-md">
         {/* Icon */}
         <div className="flex justify-center mb-6">
@@ -11,12 +11,12 @@ const NotFound = () => {
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
+        <h1 className="text-4xl font-bold text-foreground mb-2">
           404 – Page Not Found
         </h1>
 
         {/* Description */}
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           Oops! The page you’re looking for doesn’t exist or has been moved.
         </p>
 
