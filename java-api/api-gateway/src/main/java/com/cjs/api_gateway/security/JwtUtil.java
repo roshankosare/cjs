@@ -11,7 +11,7 @@ public class JwtUtil {
 
     // ⚠️ MUST be exactly the same as AuthController
     private static final String SECRET =
-            "this_is_a_very_secure_secret_key_which_is_32_bytes_long";
+            "3zoEGy52wr1XTpRt1oa9NOXgPtUMxrejarHXXkDyH6U";
 
     private static final SecretKey KEY =
             Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));

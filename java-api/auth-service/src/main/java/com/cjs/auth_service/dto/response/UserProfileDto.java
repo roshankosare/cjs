@@ -16,6 +16,11 @@ public class UserProfileDto {
     private String username;
     private String email;
     private String about;
+    
+    private int solvedCount;
+    private int easyCount;
+    private int mediumCount;
+    private int hardCount;
 
     private List<ProblemSubmissionDetails> latestSubmissions = new ArrayList<>();
 

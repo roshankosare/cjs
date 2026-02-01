@@ -1,7 +1,9 @@
 package com.cjs.auth_service.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import com.cjs.auth_service.dto.response.ApiResponseDto;
@@ -33,10 +35,10 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<UserProfileDto>> getUserProfile(HttpServletRequest request) {
 
         try {
-            // int userId = getAuthenticatedUserId(request);
-            // System.out.println("Fetching profile for user ID: " + userId);
+            int userId = getAuthenticatedUserId(request);
+            System.out.println("Fetching profile for user ID: " + userId);
 
-            UserProfileDto profile = userService.getUserProfile(1);
+            UserProfileDto profile = userService.getUserProfile(userId);
 
             return ResponseEntity.ok(
                     new ApiResponseDto<UserProfileDto>(
@@ -58,12 +60,12 @@ public class UserController {
     // ===============================
     @GetMapping("/submissions/{problemId}")
     public ResponseEntity<ApiResponseDto<List<ProblemSubmissionDetails>>> getProblemSubmissions(
-            @PathVariable int problemId) {
+            @PathVariable int problemId, HttpServletRequest request) {
 
         try {
-            // int userId = getAuthenticatedUserI);
+            int userId = getAuthenticatedUserId(request);
 
-            List<ProblemSubmissionDetails> submissions = userService.getProblemSubmissions(1,problemId);
+            List<ProblemSubmissionDetails> submissions = userService.getProblemSubmissions(userId,problemId);
             
 
             return ResponseEntity.ok(
@@ -84,20 +86,20 @@ public class UserController {
     // ===============================
     // HELPER: USER ID FROM JWT
     // ===============================
-    // private int getAuthenticatedUserId(HttpServletRequest request) {
+    private int getAuthenticatedUserId(HttpServletRequest request) {
 
-    //     String userIdHeader = request.getHeader("X-User-Id");
-    //     System.out.println("X-User-Id header: " + userIdHeader);
+        String userIdHeader = request.getHeader("X-User-Id");
+        System.out.println("X-User-Id header: " + userIdHeader);
 
-    //     if (userIdHeader == null)
-    //         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        if (userIdHeader == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
 
-    //     try {
-    //         return Integer.parseInt(userIdHeader);
-    //     } catch (NumberFormatException e) {
-    //         throw new ResponseStatusException(
-    //                 HttpStatus.BAD_REQUEST,
-    //                 "Invalid user id in token");
-    //     }
-    // }
+        try {
+            return Integer.parseInt(userIdHeader);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid user id in token");
+        }
+    }
 }

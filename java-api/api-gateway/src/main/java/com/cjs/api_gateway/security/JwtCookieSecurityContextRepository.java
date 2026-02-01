@@ -15,7 +15,7 @@ import java.util.List;
 public class JwtCookieSecurityContextRepository
         implements ServerSecurityContextRepository {
 
-    private static final String COOKIE_NAME = "jwt";
+    private static final String COOKIE_NAME = "access_token";
 
     @Override
     public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
@@ -28,6 +28,7 @@ public class JwtCookieSecurityContextRepository
         HttpCookie cookie = exchange.getRequest()
                 .getCookies()
                 .getFirst(COOKIE_NAME);
+
 
         if (cookie == null)
             return Mono.empty();

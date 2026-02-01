@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.cjs.cjs_service.model.Problem;
 
-public interface ProblemRepository extends JpaRepository<Problem, Integer> {
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface ProblemRepository extends JpaRepository<Problem, Integer>, JpaSpecificationExecutor<Problem> {
 
     public Optional<Problem> findBySlug(String slug);
 }

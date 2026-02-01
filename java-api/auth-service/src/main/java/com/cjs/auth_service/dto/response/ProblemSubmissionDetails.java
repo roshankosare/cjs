@@ -12,5 +12,6 @@ public class ProblemSubmissionDetails {
     private String title;
     private String status;   // 🔑 STRING, NOT ENUM
     private String language;
+    private String difficulty;
 
 }

@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.jpa.domain.Specification;
 
 @Service
 @Transactional
@@ -37,13 +38,30 @@ public class ProblemService {
         this.tagRepository = tagRepository;
     }
 
+
     public Page<Problem> getProblems(
             String difficulty,
             String[] tags,
+            String search,
             Pageable pageable) {
-        // For now: simple pagination
-        // Later you can add Specification / filtering
-        return problemRepository.findAll(pageable);
+        
+        Specification<Problem> spec = Specification.where(null);
+
+        if (difficulty != null && !difficulty.equalsIgnoreCase("ALL")) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("difficulty"), difficulty));
+        }
+
+        if (search != null && !search.isBlank()) {
+            String searchLower = "%" + search.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("title")), searchLower),
+                cb.like(cb.lower(root.get("slug")), searchLower)
+            ));
+        }
+
+        // TODO: Tag filtering (requires join)
+
+        return problemRepository.findAll(spec, pageable);
     }
 
     public Problem getProblemBySlug(String slug) {

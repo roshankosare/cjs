@@ -83,6 +83,7 @@ public class SubmissionService {
                     dto.setTitle(s.getProblem().getTitle());
                     dto.setStatus(s.getStatus().toString());
                     dto.setLanguage(s.getLanguage());
+                    dto.setDifficulty(s.getProblem().getDifficulty() != null ? s.getProblem().getDifficulty().toString() : "MEDIUM"); // Default or Null safe
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -102,6 +103,7 @@ public class SubmissionService {
                     dto.setTitle(s.getProblem().getTitle());
                     dto.setStatus(s.getStatus().toString());
                     dto.setLanguage(s.getLanguage());
+                    dto.setDifficulty(s.getProblem().getDifficulty() != null ? s.getProblem().getDifficulty().toString() : "MEDIUM");
                     return dto;
                 })
                 .collect(Collectors.toList());

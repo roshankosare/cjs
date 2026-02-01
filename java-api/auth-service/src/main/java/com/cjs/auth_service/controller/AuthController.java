@@ -24,7 +24,7 @@ public class AuthController {
 
         private final AuthService authService;
 
-        private static final String SECRET = "this_is_a_very_secure_secret_key_which_is_32_bytes_long";
+        private static final String SECRET = "3zoEGy52wr1XTpRt1oa9NOXgPtUMxrejarHXXkDyH6U";
 
         private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
@@ -52,7 +52,7 @@ public class AuthController {
 
                 response.addHeader(
                                 "Set-Cookie",
-                                "jwt=" + token +
+                                "access_token=" + token +
                                                 "; HttpOnly" +
                                                 "; Path=/" +
                                                 "; Max-Age=3600" +
@@ -82,11 +82,12 @@ public class AuthController {
 
                 response.addHeader(
                                 "Set-Cookie",
-                                "jwt=" + token +
+                                "access_token=" + token +
                                                 "; HttpOnly" +
                                                 "; Path=/" +
                                                 "; Max-Age=3600" +
-                                                "; SameSite=Lax");
+                                                "; SameSite=None" + 
+                                                "; Secure");
 
                 return ResponseEntity.ok(
                                 new ApiResponseDto<>("Sign-up successful", null, true));
@@ -100,7 +101,7 @@ public class AuthController {
 
                 response.addHeader(
                                 "Set-Cookie",
-                                "jwt=; HttpOnly; Path=/; Max-Age=0; SameSite=None; Secure");
+                                "access_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax");
 
                 return ResponseEntity.ok(
                                 new ApiResponseDto<>("Sign-out successful", null, true));

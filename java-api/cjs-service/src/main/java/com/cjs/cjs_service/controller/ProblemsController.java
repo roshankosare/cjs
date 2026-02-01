@@ -45,7 +45,9 @@ public class ProblemsController {
         @GetMapping
         public ResponseEntity<ApiResponseDto<GetAllProblemDto>> getAllProblems(
                         @RequestParam(defaultValue = "1") int page,
-                        @RequestParam(defaultValue = "10") int pageSize) {
+                        @RequestParam(defaultValue = "10") int pageSize,
+                        @RequestParam(required = false) String search,
+                        @RequestParam(required = false) String difficulty) {
 
                 if (page <= 0)
                         page = 1;
@@ -55,8 +57,9 @@ public class ProblemsController {
                 Pageable pageable = PageRequest.of(page - 1, pageSize);
 
                 var problemsPage = problemService.getProblems(
-                                null, // difficulty
+                                difficulty, 
                                 null, // tags
+                                search,
                                 pageable);
 
                 GetAllProblemDto responseDto = new GetAllProblemDto();

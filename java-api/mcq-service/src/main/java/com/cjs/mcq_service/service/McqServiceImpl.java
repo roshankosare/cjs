@@ -108,12 +108,36 @@ public class McqServiceImpl implements McqService {
     
     @Override
     public QuizSessionDto startQuiz(Integer questionCount, String category, String difficulty, Long userId) {
+        // 1. Fetch random questions
+        List<McqQuestion> questions = questionRepository.findRandomQuestions(
+            "All".equals(category) ? null : category, 
+            "All".equals(difficulty) ? null : difficulty, 
+            questionCount
+        );
+
+        if (questions.isEmpty()) {
+            throw new RuntimeException("No questions available for the selected criteria.");
+        }
+
+        // 2. Create and save session
         QuizSession session = new QuizSession();
         session.setUserId(userId);
-        session.setTotalQuestions(questionCount);
-        
-        QuizSession saved = sessionRepository.save(session);
-        return mapToSessionDto(saved);
+        session.setTotalQuestions(questions.size());
+        QuizSession savedSession = sessionRepository.save(session);
+
+        // 3. Create placeholder attempts for all selected questions
+        List<McqAttempt> placeholderAttempts = questions.stream().map(q -> {
+            McqAttempt attempt = new McqAttempt();
+            attempt.setUserId(userId);
+            attempt.setQuizSessionId(savedSession.getId());
+            attempt.setQuestionId(q.getId());
+            // isCorrect and selectedOption remain null
+            return attempt;
+        }).collect(Collectors.toList());
+
+        attemptRepository.saveAll(placeholderAttempts);
+
+        return mapToSessionDto(savedSession);
     }
     
     @Override
@@ -123,29 +147,36 @@ public class McqServiceImpl implements McqService {
         
         QuizSession session = sessionRepository.findById(dto.getQuizSessionId())
             .orElseThrow(() -> new RuntimeException("Quiz session not found"));
+
+        if (session.getIsCompleted()) {
+            throw new RuntimeException("Quiz session is already completed.");
+        }
         
+        // Find existing placeholder attempt or create one
+        McqAttempt attempt = attemptRepository.findByQuizSessionIdAndQuestionId(dto.getQuizSessionId(), dto.getQuestionId())
+            .orElseGet(() -> {
+                McqAttempt newAttempt = new McqAttempt();
+                newAttempt.setUserId(userId);
+                newAttempt.setQuizSessionId(dto.getQuizSessionId());
+                newAttempt.setQuestionId(dto.getQuestionId());
+                return newAttempt;
+            });
+        
+        // Prevent double submission for the same question if already answered
+        if (attempt.getSelectedOption() != null) {
+            // Option already selected, we'll just update it or throw? Let's allow update but log it.
+        }
+
         boolean isCorrect = question.getCorrectOption().equals(dto.getSelectedOption());
         
-        McqAttempt attempt = new McqAttempt();
-        attempt.setUserId(userId);
-        attempt.setQuizSessionId(dto.getQuizSessionId());
-        attempt.setQuestionId(dto.getQuestionId());
         attempt.setSelectedOption(dto.getSelectedOption());
         attempt.setIsCorrect(isCorrect);
+        attempt.setAttemptedAt(java.time.LocalDateTime.now());
         
         attemptRepository.save(attempt);
         
         // Update session stats
-        if (isCorrect) {
-            session.setCorrectAnswers(session.getCorrectAnswers() + 1);
-        } else {
-            session.setIncorrectAnswers(session.getIncorrectAnswers() + 1);
-        }
-        
-        int totalAnswered = session.getCorrectAnswers() + session.getIncorrectAnswers();
-        session.setScorePercentage((double) session.getCorrectAnswers() / totalAnswered * 100);
-        
-        sessionRepository.save(session);
+        updateSessionStats(session);
         
         McqAttemptResultDto result = new McqAttemptResultDto();
         result.setIsCorrect(isCorrect);
@@ -154,6 +185,27 @@ public class McqServiceImpl implements McqService {
         result.setQuizSession(mapToSessionDto(session));
         
         return result;
+    }
+
+    private void updateSessionStats(QuizSession session) {
+        List<McqAttempt> attempts = attemptRepository.findByQuizSessionId(session.getId());
+        long correct = attempts.stream().filter(a -> Boolean.TRUE.equals(a.getIsCorrect())).count();
+        long incorrect = attempts.stream().filter(a -> Boolean.FALSE.equals(a.getIsCorrect())).count();
+        long totalAnswered = correct + incorrect;
+
+        session.setCorrectAnswers((int) correct);
+        session.setIncorrectAnswers((int) incorrect);
+        
+        if (totalAnswered > 0) {
+            session.setScorePercentage((double) correct / session.getTotalQuestions() * 100);
+        }
+
+        if (totalAnswered >= session.getTotalQuestions()) {
+            session.setIsCompleted(true);
+            session.setCompletedAt(java.time.LocalDateTime.now());
+        }
+        
+        sessionRepository.save(session);
     }
     
     @Override

@@ -27,6 +27,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column
+    private String about;
+
     @Column(nullable = false)
     private String passwordHash;
 
