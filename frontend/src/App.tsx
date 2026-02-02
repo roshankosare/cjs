@@ -14,6 +14,8 @@ import AdminDashboard from "./components/admin/admin-dashboard";
 import AdminGuard from "./components/auth/admin-guard";
 import UserProfilePage from "./pages/user-profile-page";
 import AdminMcqPage from "./pages/admin-mcq-page";
+import CreateMcqPage from "./pages/create-mcq-page";
+import EditMcqPage from "./pages/edit-mcq-page";
 import UserGuard from "./components/auth/user-guard";
 import McqPage from "./pages/mcq-page";
 import QuizHistoryPage from "./pages/quiz-history-page";
@@ -120,6 +122,24 @@ function App() {
                 element={
                   <AdminGuard>
                     <AdminMcqPage />
+                  </AdminGuard>
+                }
+              ></Route>
+
+              <Route
+                path="/admin/mcq/create"
+                element={
+                  <AdminGuard>
+                    <CreateMcqPage />
+                  </AdminGuard>
+                }
+              ></Route>
+
+              <Route
+                path="/admin/mcq/:id/edit"
+                element={
+                  <AdminGuard>
+                    <EditMcqPage />
                   </AdminGuard>
                 }
               ></Route>

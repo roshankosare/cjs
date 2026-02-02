@@ -23,6 +23,10 @@ class McqService {
     });
 
     if (!response.ok) {
+      if (response.status >= 500) {
+        throw new Error("Something went wrong. Please try again later.");
+      }
+
       const error = await response
         .json()
         
