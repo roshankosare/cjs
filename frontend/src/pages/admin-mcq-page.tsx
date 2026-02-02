@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { AlertCircle, Edit, Trash2, Plus, Search, Filter, Layers, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import McqForm from '@/components/mcq/mcq-form';
 import type { McqQuestionWithAnswer } from '../types/mcq';
 import { mcqService } from '../service/mcqService';
-import { Edit, Trash2, Plus, Search, Filter, Layers, Brain } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -24,9 +22,6 @@ const AdminMcqPage = () => {
   const [questions, setQuestions] = useState<McqQuestionWithAnswer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<McqQuestionWithAnswer | null>(null);
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,17 +68,7 @@ const AdminMcqPage = () => {
     }
   };
 
-  const handleEditQuestion = (question: McqQuestionWithAnswer) => {
-    setEditingQuestion(question);
-    setShowEditDialog(true);
-  };
 
-  const handleFormSuccess = () => {
-    setShowAddDialog(false);
-    setShowEditDialog(false);
-    setEditingQuestion(null);
-    loadQuestions();
-  };
 
   // Client-side filtering for search
   const filteredQuestions = questions.filter(q => 
@@ -116,23 +101,16 @@ const AdminMcqPage = () => {
             </div>
           </div>
           
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="h-14 px-8 rounded-2xl text-base font-bold shadow-xl shadow-primary/20 flex gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center">
-                    <Plus className="w-4 h-4" />
-                  </div>
-                  New Challenge
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-[1200px] w-[95vw] h-[95vh] p-0 border-none bg-transparent shadow-none" aria-describedby="add-dialog-desc">
-                 <DialogHeader className="sr-only">
-                    <DialogTitle>Add New Question</DialogTitle>
-                    <DialogDescription id="add-dialog-desc">Form builder</DialogDescription>
-                 </DialogHeader>
-                 <McqForm onSuccess={handleFormSuccess} />
-              </DialogContent>
-          </Dialog>
+          <Button 
+            size="lg" 
+            className="h-14 px-8 rounded-2xl text-base font-bold shadow-xl shadow-primary/20 flex gap-3"
+            onClick={() => navigate('/admin/mcq/create')}
+          >
+            <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center">
+              <Plus className="w-4 h-4" />
+            </div>
+            New Challenge
+          </Button>
         </div>
 
         {/* Filter Bar - Modernized */}
@@ -201,45 +179,14 @@ const AdminMcqPage = () => {
               <QuestionCard 
                 key={q.id} 
                 question={q} 
-                onEdit={() => handleEditQuestion(q)}
+                onEdit={() => navigate(`/admin/mcq/${q.id}/edit`)}
                 onDelete={() => handleDeleteQuestion(q.id)}
               />
             ))}
           </div>
         )}
 
-        {/* Edit Dialog - Full Screen Aesthetic */}
-        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="max-w-[1200px] w-[95vw] h-[95vh] p-0 border-none bg-transparent shadow-none" aria-describedby="edit-dialog-desc">
-            <DialogHeader className="sr-only">
-               <DialogTitle>Edit Challenge</DialogTitle>
-               <DialogDescription id="edit-dialog-desc">Updater</DialogDescription>
-            </DialogHeader>
-            {editingQuestion && (
-              <McqForm
-                initialData={{
-                  question: editingQuestion.question,
-                  optionA: editingQuestion.optionA,
-                  optionB: editingQuestion.optionB,
-                  optionC: editingQuestion.optionC,
-                  optionD: editingQuestion.optionD,
-                  correctOption: editingQuestion.correctOption,
-                  correctExplanation: editingQuestion.correctExplanation,
-                  incorrectExplanationA: editingQuestion.incorrectExplanationA,
-                  incorrectExplanationB: editingQuestion.incorrectExplanationB,
-                  incorrectExplanationC: editingQuestion.incorrectExplanationC,
-                  incorrectExplanationD: editingQuestion.incorrectExplanationD,
-                  category: editingQuestion.category,
-                  difficulty: editingQuestion.difficulty,
-                }}
-                isEditing={true}
-                questionId={editingQuestion.id}
-                onSuccess={handleFormSuccess}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
+          </div>
     </div>
   );
 };

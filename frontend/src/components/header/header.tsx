@@ -1,6 +1,6 @@
 import { useAuth } from "@/auth/useAuth";
 import Logo from "../logo";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiLogOut, FiUser } from "react-icons/fi";
 import { Button } from "../ui/button";
 import ConfirmLogoutModal from "../confirm-log-out-model";
@@ -34,11 +34,13 @@ const Header = () => {
   const { isLoading, isAuthenticated, logout, user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     setLoading(true);
     try {
-      logout();
+      await logout();
+      navigate("/");
     } finally {
       setLoading(false);
       setOpen(false);
@@ -52,7 +54,12 @@ const Header = () => {
         </Link>
 
         <div className="hidden sm:flex sm:flex-row items-center gap-6">
-          {Links.map((link) => (
+          {Links.filter((link) => {
+            if (user?.role === "ADMIN") {
+              return link.title !== "Problems" && link.title !== "MCQ";
+            }
+            return true;
+          }).map((link) => (
             <Link
               key={link.id}
               to={link.link}

@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { FiMail, FiLock } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInSchema } from "@/lib/schemas";
+import { getApiErrorMessage } from "@/lib/api-utils";
 
 const SignIn = () => {
   const {
@@ -33,12 +34,8 @@ const SignIn = () => {
       });
       refetchUser();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        console.error("Sign-in error:", error.response);
-        setError(
-          error.response?.data?.message || "An error occurred during sign-in."
-        );
-      }
+      console.error("Sign-in error:", error);
+      setError(getApiErrorMessage(error));
     }
   };
 

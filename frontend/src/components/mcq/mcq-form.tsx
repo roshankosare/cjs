@@ -6,15 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { mcqSchema, type McqFormValues } from '@/schemas/mcq-schema';
 import { mcqService } from '@/service/mcqService';
+import { getApiErrorMessage } from '@/lib/api-utils';
 import { 
-  AlertCircle, Save, BrainCircuit, Type, FileText, 
-  CheckCircle2, ArrowRight, ArrowLeft, Settings2, Sparkles, BookOpenCheck
+  AlertCircle, Save, BrainCircuit, FileText, 
+  Settings2, BookOpenCheck, Sparkles
 } from 'lucide-react';
 import type { CreateMcqDto } from '@/types/mcq';
 import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface McqFormProps {
   onSuccess?: () => void;
@@ -29,10 +30,7 @@ const categories = [
   "Linked Lists", "Stacks and Queues", "Hash Tables", "Recursion"
 ];
 
-type FormTab = 'details' | 'options' | 'solution';
-
 const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqFormProps) => {
-  const [activeTab, setActiveTab] = useState<FormTab>('details');
   const [submissionError, setSubmissionError] = useState('');
   
   const defaultValues: McqFormValues = initialData ? {
@@ -70,7 +68,6 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
     control,
     handleSubmit,
     watch,
-    trigger,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<McqFormValues>({
@@ -94,31 +91,15 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
         reset();
       }
     } catch (err) {
-      setSubmissionError(err instanceof Error ? err.message : 'Failed to save question');
+      console.error("MCQ Form error:", err);
+      setSubmissionError(getApiErrorMessage(err));
     }
-  };
-
-  const nextTab = async (current: FormTab) => {
-    let fieldsToValidate: (keyof McqFormValues)[] = [];
-    if (current === 'details') fieldsToValidate = ['question', 'category', 'difficulty'];
-    if (current === 'options') fieldsToValidate = ['optionA', 'optionB', 'optionC', 'optionD', 'correctOption'];
-    
-    const isValid = await trigger(fieldsToValidate);
-    if (isValid) {
-      if (current === 'details') setActiveTab('options');
-      if (current === 'options') setActiveTab('solution');
-    }
-  };
-
-  const prevTab = () => {
-    if (activeTab === 'options') setActiveTab('details');
-    if (activeTab === 'solution') setActiveTab('options');
   };
 
   return (
     <div className="flex flex-col bg-background h-full max-h-[95vh] overflow-hidden rounded-xl border shadow-2xl">
-      {/* Header with Progress */}
-      <div className="px-6 py-4 border-b bg-muted/30 flex items-center justify-between">
+      {/* Header */}
+      <div className="px-6 py-4 border-b bg-muted/30 flex items-center justify-between shadow-sm z-10">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-lg text-primary">
             <Sparkles className="w-5 h-5" />
@@ -128,57 +109,10 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
             <p className="text-xs text-muted-foreground">Drafting high-quality software engineering questions</p>
           </div>
         </div>
-
-        {/* Tab Indicator */}
-        <div className="flex gap-1">
-          {(['details', 'options', 'solution'] as FormTab[]).map((tab, idx) => (
-            <div 
-              key={tab} 
-              className={cn(
-                "w-8 h-1 rounded-full transition-all duration-300",
-                activeTab === tab ? "bg-primary w-12" : "bg-muted-foreground/20"
-              )}
-            />
-          ))}
-        </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="flex border-b bg-card">
-        <button 
-          onClick={() => setActiveTab('details')}
-          className={cn(
-            "flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2",
-            activeTab === 'details' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold">1</div>
-          Basic Info
-        </button>
-        <button 
-          onClick={() => nextTab('details')}
-          className={cn(
-            "flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2",
-            activeTab === 'options' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold">2</div>
-          Options
-        </button>
-        <button 
-          onClick={() => nextTab('options')}
-          className={cn(
-            "flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2",
-            activeTab === 'solution' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold">3</div>
-          Solution
-        </button>
-      </div>
-
-      {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8">
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-[#f8fafc] dark:bg-zinc-950/50">
         {submissionError && (
           <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2 mb-6 animate-in slide-in-from-top-2">
             <AlertCircle className="w-4 h-4" />
@@ -186,30 +120,34 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* STEP 1: Details */}
-          {activeTab === 'details' && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="grid md:grid-cols-[1fr,250px] gap-8">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 font-bold text-base">
-                    <FileText className="w-4 h-4 text-primary" />
-                    Question Text *
-                  </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-5xl mx-auto">
+          
+          {/* SECTION 1: QUESTION DETAILS */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6 md:p-8 space-y-6">
+              <div className="flex items-center gap-2 font-bold text-lg border-b pb-2 mb-4">
+                 <FileText className="w-5 h-5 text-primary" />
+                 Question & Metadata
+              </div>
+
+              <div className="grid md:grid-cols-[1fr,300px] gap-8">
+                {/* Question Text */}
+                <div className="space-y-3">
+                  <Label className="font-semibold text-base">Question Text *</Label>
                   <Textarea 
                     {...register('question')}
                     placeholder="Enter the main question here..."
-                    className="min-h-[220px] text-lg p-6 bg-muted/20 border-2 focus-visible:border-primary resize-none rounded-xl"
+                    className="min-h-[180px] text-lg p-4 bg-muted/20 border-2 focus-visible:border-primary resize-none rounded-xl"
                   />
                   {errors.question && <p className="text-sm text-destructive font-medium">{errors.question.message}</p>}
                 </div>
 
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 font-bold text-base mb-2">
-                    <Settings2 className="w-4 h-4 text-primary" />
-                    Metadata
-                  </div>
-                  <div className="space-y-4 bg-muted/30 p-5 rounded-xl border border-dashed text-sm">
+                {/* Metadata Sidebar */}
+                <div className="space-y-4 bg-muted/30 p-5 rounded-xl border border-dashed h-fit">
+                    <div className="flex items-center gap-2 font-bold text-sm mb-2 text-muted-foreground">
+                       <Settings2 className="w-4 h-4" /> Properties
+                    </div>
+                    
                     <div className="space-y-2">
                       <Label className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Topic</Label>
                       <Controller
@@ -227,6 +165,7 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
                         )}
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Complexity</Label>
                       <Controller
@@ -246,22 +185,23 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
                         )}
                       />
                     </div>
-                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            </CardContent>
+          </Card>
 
-          {/* STEP 2: Options */}
-          {activeTab === 'options' && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div className="flex items-center justify-between">
+          {/* SECTION 2: OPTIONS */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6 md:p-8 space-y-6">
+              <div className="flex items-center justify-between border-b pb-2 mb-4">
                   <div className="flex items-center gap-2 font-bold text-lg">
                     <BrainCircuit className="w-5 h-5 text-primary" />
-                    Define Options & Identify the Answer
+                    Options Configuration
                   </div>
+                  
+                  {/* Correct Option Selector */}
                   <div className="flex items-center gap-3 bg-primary/5 px-4 py-2 rounded-full border border-primary/20">
-                    <span className="text-xs font-bold text-primary uppercase tracking-tighter">Correct Is:</span>
+                    <span className="text-xs font-bold text-primary uppercase tracking-tighter">Correct Answer:</span>
                     <Controller
                       name="correctOption"
                       control={control}
@@ -285,106 +225,96 @@ const McqForm = ({ onSuccess, initialData, isEditing = false, questionId }: McqF
                     />
                   </div>
                </div>
-               
+
+               {errors.correctOption && <p className="text-center text-sm font-bold text-destructive animate-pulse bg-destructive/10 py-2 rounded">Selection Required: {errors.correctOption.message}</p>}
+
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  {['A', 'B', 'C', 'D'].map(opt => (
                    <div key={opt} className={cn(
-                     "relative p-6 rounded-2xl border-2 transition-all group",
-                     formData.correctOption === opt ? "border-primary bg-primary/[0.02] shadow-sm" : "border-muted hover:border-primary/20"
+                     "relative p-6 rounded-2xl border-2 transition-all group bg-background",
+                     formData.correctOption === opt ? "border-primary bg-primary/[0.02] shadow-sm" : "border-muted/60 hover:border-primary/20"
                    )}>
-                     <div className="absolute -top-3 left-6 px-2 bg-background border rounded text-xs font-black text-muted-foreground group-hover:text-primary transition-colors">
-                       OPTION {opt}
-                     </div>
                      <div className="flex gap-4 items-start">
                         <div className={cn(
-                          "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-black transition-colors",
+                          "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black transition-colors text-sm",
                           formData.correctOption === opt ? "bg-primary text-white" : "bg-muted text-muted-foreground"
                         )}>
                           {opt}
                         </div>
-                        <Input 
-                          {...register(`option${opt}` as any)}
-                          placeholder={`Enter label for option ${opt}...`}
-                          className="border-none shadow-none text-base p-0 h-auto focus-visible:ring-0 bg-transparent"
-                        />
-                     </div>
-                     
-                     <div className="mt-4 pt-4 border-t border-dashed border-muted flex items-center gap-2">
-                        <Label className="text-[10px] font-black uppercase text-muted-foreground opacity-50 shrink-0">Flaw Logic (Optional):</Label>
-                        <Input 
-                          {...register(`incorrectExplanation${opt}` as any)}
-                          placeholder={`Explain why ${opt} is wrong...`}
-                          className="h-8 text-[11px] bg-muted/30 border-none shadow-none focus-visible:ring-0 px-2 rounded-md"
-                        />
+                        <div className="flex-1 space-y-3">
+                           <Input 
+                             {...register(`option${opt}` as any)}
+                             placeholder={`Option ${opt} Label`}
+                             className="font-medium text-base h-10 border-muted focus-visible:ring-1"
+                           />
+                           
+                           {/* Flaw logic inline */}
+                           <div className="relative">
+                              <Input 
+                                {...register(`incorrectExplanation${opt}` as any)}
+                                placeholder={`Why is this wrong? (Optional)`}
+                                className="h-8 text-xs bg-muted/30 border-none shadow-none focus-visible:ring-0 px-2 rounded-md"
+                              />
+                           </div>
+                        </div>
                      </div>
                    </div>
                  ))}
                </div>
-               {errors.correctOption && <p className="text-center text-sm font-bold text-destructive animate-pulse">{errors.correctOption.message}</p>}
-            </div>
-          )}
+            </CardContent>
+          </Card>
 
-          {/* STEP 3: Solution */}
-          {activeTab === 'solution' && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div className="bg-primary/5 p-8 rounded-3xl border border-primary/10 border-dashed">
-                  <div className="flex items-center gap-3 mb-6">
-                     <div className="p-3 bg-primary rounded-xl text-white">
-                        <BookOpenCheck className="w-6 h-6" />
-                     </div>
-                     <div>
-                        <h3 className="text-xl font-black">Success Analysis</h3>
-                        <p className="text-sm text-muted-foreground italic">What makes the correct answer the optimal choice? *</p>
-                     </div>
-                  </div>
-                  
-                  <Textarea 
-                    {...register('correctExplanation')}
-                    placeholder="Provide a logical walkthrough that helps students learn. Use examples or complexity analysis if possible."
-                    className="min-h-[250px] text-lg bg-background p-6 border-2 focus-visible:border-primary shadow-inner rounded-2xl"
-                  />
-                  {errors.correctExplanation && <p className="mt-3 text-sm font-bold text-destructive">{errors.correctExplanation.message}</p>}
-               </div>
-            </div>
-          )}
+          {/* SECTION 3: SOLUTION */}
+          <Card className="border-0 shadow-md bg-primary/5 border-primary/10 border-dashed">
+             <CardContent className="p-6 md:p-8 space-y-6">
+                <div className="flex items-center gap-2 font-bold text-lg mb-2">
+                   <div className="p-2 bg-primary rounded-lg text-white">
+                      <BookOpenCheck className="w-5 h-5" />
+                   </div>
+                   Success Analysis & Explanation
+                </div>
+                
+                <div className="bg-background rounded-2xl p-1 shadow-sm border">
+                    <Textarea 
+                      {...register('correctExplanation')}
+                      placeholder="Provide a comprehensive explanation of the solution..."
+                      className="min-h-[150px] text-base p-4 border-0 focus-visible:ring-0 resize-y rounded-xl"
+                    />
+                </div>
+                {errors.correctExplanation && <p className="text-sm font-bold text-destructive">{errors.correctExplanation.message}</p>}
+             </CardContent>
+          </Card>
+
         </form>
       </div>
 
       {/* Footer Controls */}
-      <div className="p-6 border-t bg-muted/10 flex items-center justify-between">
+      <div className="p-6 border-t bg-background flex items-center justify-end gap-4 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-20">
          <Button 
             variant="ghost" 
-            onClick={activeTab === 'details' ? (onSuccess || (() => {})) : prevTab}
+            onClick={onSuccess}
+            type="button"
             disabled={isSubmitting}
-            className="font-bold text-muted-foreground"
+            className="font-bold text-muted-foreground hover:bg-muted"
           >
-            {activeTab === 'details' ? 'Cancel' : (
-              <><ArrowLeft className="w-4 h-4 mr-2" /> Previous Step</>
-            )}
+            Cancel
          </Button>
 
-         <div className="flex gap-4">
-            {activeTab !== 'solution' ? (
-              <Button 
-                onClick={() => nextTab(activeTab)} 
-                size="lg"
-                className="font-black px-8 shadow-xl shadow-primary/20 group"
-              >
-                Continue <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
+         <Button 
+            onClick={handleSubmit(onSubmit)} 
+            disabled={isSubmitting} 
+            size="lg"
+            className="font-black px-10 shadow-xl shadow-primary/20 text-base h-12 rounded-xl"
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                Saving...
+              </span>
             ) : (
-              <Button 
-                onClick={handleSubmit(onSubmit)} 
-                disabled={isSubmitting} 
-                size="lg"
-                className="font-black px-10 shadow-xl shadow-primary/30"
-              >
-                {isSubmitting ? 'Finalizing...' : (
-                  <><Save className="w-4 h-4 mr-2" /> {isEditing ? 'Save Changes' : 'Build Challenge'}</>
-                )}
-              </Button>
+              <><Save className="w-5 h-5 mr-2" /> {isEditing ? 'Save Changes' : 'Create Challenge'}</>
             )}
-         </div>
+         </Button>
       </div>
     </div>
   );

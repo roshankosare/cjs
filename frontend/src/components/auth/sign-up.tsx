@@ -7,10 +7,11 @@ import { FiMail, FiLock, FiUser, FiCheckCircle } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useAuth } from "@/auth/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpSchema } from "@/lib/schemas";
+import { getApiErrorMessage } from "@/lib/api-utils";
 
 const SignUp = () => {
   const {
@@ -34,14 +35,11 @@ const SignUp = () => {
       });
       refetchUser();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        console.error("Sign-up error:", error.message);
-        setError(
-          error.response?.data?.message || "An error occurred during sign-up."
-        );
-      }
+      console.error("Sign-up error:", error);
+      setError(getApiErrorMessage(error));
     }
   };
+
 
   return (
     <div className="w-full max-w-md mx-auto pt-10">

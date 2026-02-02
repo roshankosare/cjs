@@ -1,7 +1,8 @@
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-utils";
 
 import { problemSchema, type ProblemFormInput } from "./problem-schema";
 import type { AdminProblem } from "@/types/problem";
@@ -109,13 +110,8 @@ const CreateProblemForm: React.FC<Props> = ({ problem }) => {
         });
       }
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const message =
-          err.response?.data?.message ||
-          err.response?.data?.title ||
-          "Something went wrong. Please try again.";
-        setApiError(message);
-      }
+      console.error("Create problem error:", err);
+      setApiError(getApiErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
